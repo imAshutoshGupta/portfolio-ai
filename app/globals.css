@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-base font-body text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgba(226, 178, 90, 0.3);
+    color: #ededef;
+  }
+
+  :focus-visible {
+    outline: 2px solid #e2b25a;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Subtle film grain over everything — texture without GPU cost. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer components {
+  /* The shared "glass panel" treatment used by the chat and project cards. */
+  .glass {
+    border: 1px solid rgba(237, 237, 239, 0.08);
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.045) 0%,
+        rgba(255, 255, 255, 0.015) 45%,
+        rgba(226, 178, 90, 0.025) 100%
+      );
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* Cursor-tracking sheen on project cards (vars set from JS). */
+  .card-sheen {
+    --sheen-x: 50%;
+    --sheen-y: 50%;
+  }
+
+  .card-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(
+      28rem circle at var(--sheen-x) var(--sheen-y),
+      rgba(226, 178, 90, 0.08),
+      transparent 65%
+    );
+  }
+
+  .card-sheen:hover::after {
+    opacity: 1;
+  }
+
+  /* Static hero background — the floor under the WebGL canvas, and the
+     full experience for reduced-motion / no-WebGL visitors. */
+  .hero-fallback {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60rem 40rem at 72% 30%, rgba(226, 178, 90, 0.10), transparent 60%),
+      radial-gradient(50rem 36rem at 18% 75%, rgba(74, 92, 125, 0.12), transparent 60%),
+      #0a0a0b;
+  }
+
+  .hero-fallback-animated {
+    background-size: 160% 160%;
+    animation: hero-drift 24s ease-in-out infinite alternate;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-fallback-animated {
+      animation: none;
+    }
+  }
+
+  /* Footer's animated hairline. */
+  .footer-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(226, 178, 90, 0.45) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 6s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-shimmer {
+      animation: none;
+      background-position: 50% 0;
+    }
+  }
+
+  /* External link arrows that nudge on hover. */
+  .link-arrow::after {
+    content: "↗";
+    display: inline-block;
+    margin-left: 0.35em;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .link-arrow:hover::after {
+    transform: translate(2px, -2px);
+  }
+}
+
+@keyframes hero-drift {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+@layer utilities {
+  .animate-scroll-cue {
+    animation: scroll-cue 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+}
