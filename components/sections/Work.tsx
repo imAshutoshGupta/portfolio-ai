@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import RevealText from "@/components/RevealText";
+import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
 import { gsap, hasFinePointer, prefersReducedMotion } from "@/lib/motion";
 import { profile, type Project } from "@/data/profile";
@@ -39,7 +39,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         ref={cardRef}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
-        className="card-sheen glass group relative flex h-full flex-col rounded-2xl p-7 will-change-transform sm:p-9"
+        className="card-sheen panel group relative flex h-full flex-col rounded-card p-7 will-change-transform sm:p-9"
       >
         <div className="flex items-baseline justify-between">
           <span className="font-display text-sm text-muted">
@@ -102,17 +102,17 @@ export default function Work() {
     <section
       id="work"
       aria-labelledby="work-heading"
-      className="mx-auto max-w-site px-6 py-28 sm:px-10 sm:py-40"
+      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
-      <p className="mb-4 text-sm tracking-widest text-accent">03 — SELECTED WORK</p>
-      <RevealText
-        id="work-heading"
-        className="max-w-3xl font-display text-[clamp(1.9rem,4.5vw,3.4rem)] font-medium leading-tight tracking-tight text-ink"
-      >
-        Things I&apos;ve built and shipped.
-      </RevealText>
+      <SectionHeading
+        index="04"
+        eyebrow="Selected work"
+        title="Things I've built and shipped."
+        support="A few projects that show the range — from data models to shaders."
+        headingId="work-heading"
+      />
 
-      <div className="mt-14 grid gap-6 md:grid-cols-2">
+      <div className="mt-14 grid gap-5 md:grid-cols-2">
         {profile.projects.map((project, i) => (
           <ProjectCard key={project.title} project={project} index={i} />
         ))}

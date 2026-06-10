@@ -42,18 +42,99 @@
 }
 
 @layer components {
-  /* The shared "glass panel" treatment used by the chat and project cards. */
-  .glass {
+  /* Opaque panel — the workhorse surface for cards, frames and rails. */
+  .panel {
     border: 1px solid rgba(237, 237, 239, 0.08);
-    background:
-      linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.045) 0%,
-        rgba(255, 255, 255, 0.015) 45%,
-        rgba(226, 178, 90, 0.025) 100%
-      );
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, #131316 0%, #0e0e10 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .panel-hover {
+    transition:
+      border-color 0.35s ease,
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s ease;
+  }
+
+  .panel-hover:hover {
+    border-color: rgba(226, 178, 90, 0.28);
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 16px 48px -20px rgba(0, 0, 0, 0.65),
+      0 0 32px -12px rgba(226, 178, 90, 0.18);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel-hover:hover {
+      transform: none;
+    }
+  }
+
+  /* Tech marquee: the track holds two copies of the list and translates by
+     exactly one copy's width for a seamless loop. */
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 36s linear infinite;
+  }
+
+  .marquee-mask:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      flex-wrap: wrap;
+      width: auto;
+    }
+    .marquee-mask {
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+  }
+
+  /* FAQ accordion: grid-rows trick gives a smooth height animation without JS
+     measurement. */
+  .faq-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .faq-body[data-open="true"] {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-body > div {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-body {
+      transition: none;
+    }
+  }
+
+  /* Bento: the 60fps gauge draws itself in once. */
+  .perf-arc {
+    animation: arc-in 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .perf-arc {
+      animation: none;
+    }
+    /* SMIL ignores media queries, so hide the travelling dot instead. */
+    .motion-dot {
+      display: none;
+    }
   }
 
   /* Cursor-tracking sheen on project cards (vars set from JS). */
@@ -141,6 +222,24 @@
   }
   to {
     background-position: 100% 100%;
+  }
+}
+
+@keyframes arc-in {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 8;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 

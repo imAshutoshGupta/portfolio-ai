@@ -31,9 +31,9 @@ npm start
 
 **Everything lives in one file: [`data/profile.ts`](data/profile.ts).**
 
-Name, tagline, bio, skills, projects, experience, contact links, and the chat's suggested questions are all defined there — and the same data feeds both the visible sections *and* the AI assistant (the local engine's answers and the LLM system prompt). Edit once, and the whole site plus the assistant update together.
+Name, tagline, bio, skills, projects, experience, contact links, the chat's suggested questions, the stats strip, the bento-grid strengths, the process tabs, and the FAQ are all defined there — and the same data feeds both the visible sections *and* the AI assistant (the local engine's answers and the LLM system prompt). Edit once, and the whole site plus the assistant update together.
 
-Entries marked `[PLACEHOLDER]` are realistic examples; replace them with your real projects and experience. Mark exactly one project with `flagship: true` — the assistant cites it as the strongest.
+Entries marked `[PLACEHOLDER]` are realistic examples; replace them with your real projects and experience. Mark exactly one project with `flagship: true` — the assistant cites it as the strongest. Stats with `approximate: true` render with a "~" prefix; the technologies count is computed from your skills list so it's always real. The telemetry panel in the capabilities grid is explicitly labelled as an illustrative demo visualization.
 
 ---
 
@@ -107,12 +107,17 @@ Redeploy after changing env vars. Without any of them the site is fully function
 app/
   layout.tsx            Fonts, metadata (OG/Twitter), skip link
   page.tsx              Section composition
-  globals.css           Design tokens, glass panel, fallbacks, keyframes
+  globals.css           Design tokens, panel surface, marquee/accordion, keyframes
   opengraph-image.tsx   Generated link-preview card
   api/ask/route.ts      Streaming chat endpoint (provider-agnostic)
 components/
   gl/                   Glass shader, r3f scene, device-aware wrapper
-  sections/             Hero, About, Ask, Work, Experience, Contact
+  sections/             Hero, Stats, About, Bento, Ask, Work, Process,
+                        Experience, Faq, Contact
+  SectionHeading        Shared eyebrow/headline/support rhythm
+  CountUp               Scroll-triggered count-up (static under reduced motion)
+  TechMarquee           Infinite tech-chip strip (wraps statically under reduced motion)
+  Telemetry             Labelled demo dashboard with live SVG sparklines
   Preloader, Cursor, Magnetic, RevealText, Reveal, SmoothScroll, Nav, Footer
 lib/
   ai/                   Provider interface, local engine, Anthropic/OpenAI adapters
@@ -121,3 +126,6 @@ lib/
 data/
   profile.ts            ★ All content — edit this file
 ```
+
+Every visual on the page is code-rendered — gradients, SVG, canvas/WebGL and
+styled DOM. There are no photos, stock images, or external image assets.

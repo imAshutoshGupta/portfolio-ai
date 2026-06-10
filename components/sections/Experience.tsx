@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import RevealText from "@/components/RevealText";
+import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
 import { profile } from "@/data/profile";
@@ -36,15 +36,14 @@ export default function Experience() {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="mx-auto max-w-site px-6 py-28 sm:px-10 sm:py-40"
+      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
-      <p className="mb-4 text-sm tracking-widest text-accent">04 — EXPERIENCE</p>
-      <RevealText
-        id="experience-heading"
-        className="max-w-3xl font-display text-[clamp(1.9rem,4.5vw,3.4rem)] font-medium leading-tight tracking-tight text-ink"
-      >
-        Where the work happened.
-      </RevealText>
+      <SectionHeading
+        index="06"
+        eyebrow="Experience"
+        title="Where the work happened."
+        headingId="experience-heading"
+      />
 
       <div className="relative mt-16 max-w-3xl">
         <div

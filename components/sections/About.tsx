@@ -1,4 +1,4 @@
-import RevealText from "@/components/RevealText";
+import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
 import { profile } from "@/data/profile";
 
@@ -7,15 +7,14 @@ export default function About() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="mx-auto max-w-site px-6 py-28 sm:px-10 sm:py-40"
+      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
-      <p className="mb-4 text-sm tracking-widest text-accent">01 — ABOUT</p>
-      <RevealText
-        id="about-heading"
-        className="max-w-3xl font-display text-[clamp(1.9rem,4.5vw,3.4rem)] font-medium leading-tight tracking-tight text-ink"
-      >
-        Engineering with curiosity, shipped with care.
-      </RevealText>
+      <SectionHeading
+        index="01"
+        eyebrow="About"
+        title="Engineering with curiosity, shipped with care."
+        headingId="about-heading"
+      />
 
       <div className="mt-14 grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-24">
         <div className="space-y-6">
@@ -29,7 +28,7 @@ export default function About() {
         <div className="space-y-10">
           {profile.skills.map((group, gi) => (
             <Reveal key={group.label} delay={gi * 0.08}>
-              <h3 className="mb-4 text-sm tracking-widest text-muted">
+              <h3 className="mb-4 text-xs tracking-[0.2em] text-muted">
                 {group.label.toUpperCase()}
               </h3>
               <ul className="flex flex-wrap gap-2">
