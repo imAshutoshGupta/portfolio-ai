@@ -26,15 +26,35 @@ const CHANNELS: Channel[] = [
 
 const POINTS = 32;
 
-function nextValue(channel: Channel, prev: number): number {
-  const drift = (Math.random() - 0.5) * channel.jitter;
+/**
+ * Deterministic PRNG (mulberry32). The initial series must be identical on
+ * the server and the client or React reports a hydration mismatch — so the
+ * seed values come from this, keyed per channel, and true randomness is only
+ * used for the post-mount drift updates.
+ */
+function mulberry32(seed: number): () => number {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function nextValue(channel: Channel, prev: number, rand: () => number = Math.random): number {
+  const drift = (rand() - 0.5) * channel.jitter;
   const pull = (channel.base - prev) * 0.3; // mean-revert so lines stay calm
   return Math.max(0, prev + drift + pull);
 }
 
 function seedSeries(channel: Channel): number[] {
+  const rand = mulberry32(
+    channel.label.split("").reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 7),
+  );
   const series: number[] = [channel.base];
-  for (let i = 1; i < POINTS; i++) series.push(nextValue(channel, series[i - 1]));
+  for (let i = 1; i < POINTS; i++) series.push(nextValue(channel, series[i - 1], rand));
   return series;
 }
 
