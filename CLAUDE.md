@@ -16,11 +16,12 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
 
 ## Current state
 
-- Branch: `claude/bold-thompson-qaab71` (ninth iteration: the midnight coder — a recurring
-  silhouette companion threaded through the sections).
-- Builds clean; first-load JS for `/` ≈ **173 kB** (budget: stay ≈168–175 kB; all three.js is
+- Branch: `claude/bold-thompson-qaab71` (ninth iteration: new hero — the crystallizing orb,
+  scroll-morphed; Möbius kept as a one-flag fallback. A prior "midnight coder" silhouette
+  pass was reverted — don't reintroduce corner figures).
+- Builds clean; first-load JS for `/` ≈ **171 kB** (budget: stay ≈168–175 kB; all three.js is
   lazy-loaded outside this number).
-- Site flow: Preloader → Hero (Möbius 3D) → Stats → TechMarquee → About → NarrativeStatement
+- Site flow: Preloader → Hero (crystallizing orb 3D) → Stats → TechMarquee → About → NarrativeStatement
   (scroll-pinned beat) → Bento (capabilities) → Ask (AI chat) → divider "The proof" → Work
   (case studies + shard field 3D) → divider "The method" → Process → Experience (+ education)
   → divider "The next chapter" → FAQ → Contact (glass shader backdrop) → Footer.
@@ -42,15 +43,16 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
   angles respected) under About/Bento/Ask/Process/Experience/FAQ; `.panel` borders/glow
   and `--panel-from/to` are accent-tinted per theme; Atmosphere holds more mid-page
   presence (×2.1 glow alphas). Contact's animated shimmer stays the crescendo.
-- Midnight coder (9th pass): `CoderSilhouette.tsx` — one inline-SVG pictogram (figure/desk in
-  ink tokens, screen glow in the accent pair + `--glow-*-a`), mounted in six section corners
-  (md+ only, in existing bottom-padding zones — no new vertical space) as a wordless story:
-  About `typing` → Bento `coffee` → Ask `glance` → Work `leanIn` → Process `debug` →
-  Contact `shipped`. Fine-pointer/full-power: head/body turn toward the cursor and the glow
-  brightens with proximity — ONE shared window pointermove + one rAF for all instances, and
-  an IntersectionObserver subscribes only the instance near the viewport; smoothing is CSS
-  transitions (transform/opacity only, no loop). Touch/low-power: static pose + gentle CSS
-  glow pulse; reduced motion: fully still. Always aria-hidden + pointer-events-none.
+- Hero (9th pass): `gl/MorphScene.tsx` — "the idea crystallizes": one abstract icosphere orb,
+  FBM-displaced (molten) at the top of the page, that resolves as you scroll out of the hero
+  (flow freezes, facets sharpen via screen-space-derivative normals, a violet→blue structure
+  grid surfaces, roughness polishes). All morphing is shader uniforms over fixed topology
+  (detail 5 ≈ 20k tris, lite 4) — CPU writes ~8 floats/frame, damped scroll progress, three
+  eased keyframes in `stateAt()`. Cursor sway + camera parallax as before. Reduced motion =
+  still frame at p=0.62; lite = fixed structured state, slow drift, no scroll/pointer work.
+  `HERO_VARIANT` const in `gl/Hero3D.tsx` flips between "morph" and "mobius" (HeroScene.tsx
+  kept intact as the safety valve). `.hero3d-fallback` retuned to gather the glow behind the
+  orb; the page background remains the single Atmosphere system — no second backdrop.
 - `data/profile.ts` contains `[PLACEHOLDER: …]` strings awaiting the owner's real content
   (incl. `narrative.statement[2]`). They render italicized on-site and are auto-excluded
   from the AI prompt via `isPlaceholder()`.
@@ -81,9 +83,13 @@ lib/
   scroll.ts           Lenis-aware scrollToSection | theme.ts useTheme() + applyTheme()
 components/gl/        (all WebGL: dynamic import, ssr:false, frameloop frozen off-screen,
                        DPR capped, disposed on unmount, CSS fallback floor underneath)
-  Hero3D.tsx          Device-aware mount for the hero (full/lite/reduced modes)
-  HeroScene.tsx       Möbius ribbon: procedural geometry, Lightformer env (frames={1}),
-                      outer tilt group = damped cursor swing, inner group = slow orbit
+  Hero3D.tsx          Device-aware mount for the hero (full/lite/reduced modes) +
+                      HERO_VARIANT flag ("morph" | "mobius") selecting the scene chunk
+  MorphScene.tsx      Crystallizing orb (CURRENT hero): FBM vertex displacement +
+                      analytic normals, scroll-driven morph uniforms, facet/grid/rim
+                      in fragment via onBeforeCompile on MeshPhysicalMaterial
+  HeroScene.tsx       Möbius ribbon (FALLBACK hero, keep intact): procedural geometry,
+                      Lightformer env (frames={1}), damped cursor swing + slow orbit
   WorkField.tsx       Mount for the second 3D moment (Work section backdrop)
   FieldScene.tsx      Instanced octahedron shard field: 1 draw call, theme fog/lights,
                       scroll-parallax drift; decay={0} fills (physical falloff too dim)
@@ -108,8 +114,6 @@ components/
                       reduced motion / coarse / low-power
   SectionDivider.tsx  Accent-lit hairline seam, scrub-drawn, optional narrative kicker
                       label (from profile.narrative.handoffs)
-  CoderSilhouette.tsx The midnight coder: recurring SVG pictogram companion (six poses,
-                      cursor-following head/glow, viewport-scoped shared pointer tracker)
   Reveal.tsx          Scroll fade-rise, scrubbed by default (`once` opt-out) |
                       RevealText.tsx split-text headline reveal, scrubbed when scroll-
                       triggered, timed on mount (hero)
@@ -142,7 +146,8 @@ components/
 
 ## What not to touch (without explicit instruction)
 
-- The Möbius hero concept (`gl/HeroScene.tsx` geometry/material) — tune, don't replace.
+- The crystallizing-orb hero concept (`gl/MorphScene.tsx`) — tune, don't replace — and
+  `gl/HeroScene.tsx` (the Möbius), which stays intact as the `HERO_VARIANT` fallback.
 - The glass shader and its place as Contact's backdrop (`gl/Glass*`, `glassShader.ts`).
 - The AI provider architecture (`lib/ai/*`, `app/api/ask/route.ts`) and its model-agnostic
   interface; the local demo engine must keep working with zero env vars.

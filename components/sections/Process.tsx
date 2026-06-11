@@ -5,7 +5,6 @@ import SectionHeading from "@/components/SectionHeading";
 import GridPattern from "@/components/GridPattern";
 import Parallax from "@/components/Parallax";
 import Reveal from "@/components/Reveal";
-import CoderSilhouette from "@/components/CoderSilhouette";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
 import { profile } from "@/data/profile";
 
@@ -153,13 +152,6 @@ export default function Process() {
         </div>
       </Reveal>
       </div>
-
-      {/* Midnight coder, beat 5: head in hands at a bug — the honest part
-          of the method. */}
-      <CoderSilhouette
-        pose="debug"
-        className="pointer-events-none absolute bottom-2 left-0 hidden w-24 md:block lg:w-28"
-      />
     </section>
   );
 }

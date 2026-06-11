@@ -1,7 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
 import SpotlightCard from "@/components/SpotlightCard";
-import CoderSilhouette from "@/components/CoderSilhouette";
 import Telemetry from "@/components/Telemetry";
 import { profile, type Strength } from "@/data/profile";
 
@@ -223,13 +222,6 @@ export default function Bento() {
           </article>
         </Reveal>
       </div>
-
-      {/* Midnight coder, beat 2: leaning back with a coffee, surveying. */}
-      <CoderSilhouette
-        pose="coffee"
-        flip
-        className="pointer-events-none absolute bottom-3 right-0 hidden w-24 md:block lg:w-28"
-      />
       </div>
     </section>
   );
