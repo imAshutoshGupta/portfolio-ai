@@ -36,25 +36,26 @@ export default function RevealText({
 
     const words = el.querySelectorAll("[data-word]");
     const ctx = gsap.context(() => {
+      if (trigger === "scroll") {
+        // Scrubbed: the words climb out of their clips in step with scroll
+        // position, so every headline resolves at the reader's pace.
+        gsap.fromTo(
+          words,
+          { yPercent: 115 },
+          {
+            yPercent: 0,
+            duration: 0.6,
+            stagger: 0.12,
+            ease: "power2.out",
+            scrollTrigger: { trigger: el, start: "top 94%", end: "top 64%", scrub: 0.6 },
+          },
+        );
+        return;
+      }
       gsap.fromTo(
         words,
         { yPercent: 115 },
-        {
-          yPercent: 0,
-          duration: 0.9,
-          stagger: 0.06,
-          ease: "power4.out",
-          delay,
-          ...(trigger === "scroll"
-            ? {
-                scrollTrigger: {
-                  trigger: el,
-                  start: "top 88%",
-                  once: true,
-                },
-              }
-            : {}),
-        },
+        { yPercent: 0, duration: 0.9, stagger: 0.06, ease: "power4.out", delay },
       );
     }, el);
 

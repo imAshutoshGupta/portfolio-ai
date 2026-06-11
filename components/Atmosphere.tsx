@@ -1,71 +1,78 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import { gsap, hasFinePointer, prefersReducedMotion } from "@/lib/motion";
-
-interface AtmosphereProps {
-  className?: string;
-  /** "soft" for feature sections, "faint" for quieter stretches. */
-  intensity?: "soft" | "faint";
-  /** Scroll-linked drift of the glow layers (desktop, motion-safe only). */
-  parallax?: boolean;
-}
+import { gsap, isCoarseOrLowPower, prefersReducedMotion } from "@/lib/motion";
 
 /**
- * The site-wide depth layer: two soft glows that obey the lighting system —
- * violet fill from the upper right, blue from the lower left, the same angles
- * the hero's Lightformers and the Contact glass backdrop use. Dropped behind
- * a section it keeps the body in the hero's world instead of on a flat
- * background. Pure CSS gradients (no GPU cost); optional parallax separates
- * the layers from the content plane as you scroll.
+ * The site-wide depth layer, now one continuous space: a single fixed
+ * backdrop the entire page scrolls through, instead of per-section glow
+ * patches. The two layers obey the lighting system — violet fill from the
+ * upper right, blue from the lower left, the same angles as the hero's
+ * Lightformers and the Contact glass — and one scrubbed timeline slowly
+ * re-weights and drifts them across the page's chapters (who → capabilities
+ * → proof → method → close), so sections read as places in one world rather
+ * than stacked panels.
+ *
+ * Pure CSS radial gradients; the animation touches transform/opacity only.
+ * Reduced motion or coarse/low-power devices get the same gradients,
+ * static.
  */
-export default function Atmosphere({
-  className,
-  intensity = "soft",
-  parallax = false,
-}: AtmosphereProps) {
+export default function Atmosphere() {
   const violetRef = useRef<HTMLDivElement>(null);
   const blueRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const violet = violetRef.current;
     const blue = blueRef.current;
-    if (!parallax || !violet || !blue || prefersReducedMotion() || !hasFinePointer()) return;
+    if (!violet || !blue || prefersReducedMotion() || isCoarseOrLowPower()) return;
 
-    // The two glows drift at different rates — that disagreement is what
-    // reads as depth rather than decoration.
     const ctx = gsap.context(() => {
-      const trigger = {
-        trigger: violet.parentElement,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 0.8,
-      };
-      gsap.fromTo(violet, { yPercent: -8 }, { yPercent: 8, ease: "none", scrollTrigger: trigger });
-      gsap.fromTo(blue, { yPercent: 10 }, { yPercent: -10, ease: "none", scrollTrigger: { ...trigger } });
-    }, violet.parentElement ?? undefined);
-    return () => ctx.revert();
-  }, [parallax]);
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
 
-  const scale = intensity === "soft" ? 1 : 0.6;
+      // Positions are fractions of total page scroll — a light score, not
+      // exact section bounds, so the drift never snaps at a seam.
+      tl
+        // Who: the hero's violet spills down the first chapter, then yields.
+        .to(violet, { yPercent: 7, xPercent: -3, opacity: 0.55, duration: 0.3 }, 0)
+        // Proof → method: violet recovers as the page turns reflective.
+        .to(violet, { yPercent: 2, xPercent: -7, opacity: 0.8, duration: 0.4 }, 0.3)
+        // Close: both lights converge on the contact chapter.
+        .to(violet, { yPercent: 9, xPercent: -12, scale: 1.15, opacity: 1, duration: 0.3 }, 0.7)
+        .fromTo(
+          blue,
+          { yPercent: 6, xPercent: 0, opacity: 0.45 },
+          { yPercent: -6, opacity: 1, duration: 0.35 },
+          0.05,
+        )
+        .to(blue, { yPercent: -2, xPercent: 5, opacity: 0.65, duration: 0.4 }, 0.4)
+        .to(blue, { yPercent: -12, xPercent: 9, scale: 1.1, opacity: 0.9, duration: 0.2 }, 0.8);
+    });
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <div
-      aria-hidden="true"
-      className={`pointer-events-none absolute inset-0 overflow-hidden ${className ?? ""}`}
-    >
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
       <div
         ref={violetRef}
-        className="absolute -inset-y-[12%] inset-x-0"
+        className="absolute -inset-[12%] will-change-transform"
         style={{
-          background: `radial-gradient(46rem 32rem at 80% 14%, rgb(var(--c-accent) / calc(var(--glow-violet-a) * ${scale})), transparent 62%)`,
+          background: `radial-gradient(48rem 34rem at 78% 12%, rgb(var(--c-accent) / calc(var(--glow-violet-a) * 1.7)), transparent 62%)`,
         }}
       />
       <div
         ref={blueRef}
-        className="absolute -inset-y-[12%] inset-x-0"
+        className="absolute -inset-[12%] will-change-transform"
         style={{
-          background: `radial-gradient(42rem 30rem at 14% 86%, rgb(var(--c-accent-b) / calc(var(--glow-blue-a) * ${scale})), transparent 60%)`,
+          opacity: 0.55,
+          background: `radial-gradient(44rem 32rem at 16% 88%, rgb(var(--c-accent-b) / calc(var(--glow-blue-a) * 1.7)), transparent 60%)`,
         }}
       />
     </div>

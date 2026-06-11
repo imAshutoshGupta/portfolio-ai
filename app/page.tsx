@@ -4,6 +4,7 @@ import Cursor from "@/components/Cursor";
 import Nav from "@/components/Nav";
 import Atmosphere from "@/components/Atmosphere";
 import SectionDivider from "@/components/SectionDivider";
+import NarrativeStatement from "@/components/NarrativeStatement";
 import TechMarquee from "@/components/TechMarquee";
 import Hero from "@/components/sections/Hero";
 import Stats from "@/components/sections/Stats";
@@ -16,7 +17,16 @@ import Experience from "@/components/sections/Experience";
 import Faq from "@/components/sections/Faq";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/Footer";
+import { profile } from "@/data/profile";
 
+/**
+ * The page is one scroll-authored narrative:
+ * intro (Hero) → who (Stats/About) → the through-line (pinned statement) →
+ * what I can do (Bento, Ask) → the proof (Work) → the method (Process) →
+ * the journey (Experience) → the next chapter (FAQ, Contact).
+ * One fixed Atmosphere evolves underneath the whole arc; labeled dividers
+ * hand the story between chapters.
+ */
 export default function Home() {
   return (
     <>
@@ -24,28 +34,25 @@ export default function Home() {
       <SmoothScroll />
       <Cursor />
       <Nav />
-      <main id="main">
-        <Hero />
-        {/* First chapter shares one atmosphere so the hero's light visibly
-            spills past the fold instead of stopping at a section border. */}
+      <main id="main" className="relative">
+        <Atmosphere />
         <div className="relative">
-          <Atmosphere parallax />
-          <div className="relative">
-            <Stats />
-            <TechMarquee />
-            <About />
-          </div>
+          <Hero />
+          <Stats />
+          <TechMarquee />
+          <About />
+          <NarrativeStatement />
+          <Bento />
+          <Ask />
+          <SectionDivider label={profile.narrative.handoffs.work} />
+          <Work />
+          <SectionDivider label={profile.narrative.handoffs.process} />
+          <Process />
+          <Experience />
+          <SectionDivider label={profile.narrative.handoffs.contact} />
+          <Faq />
+          <Contact />
         </div>
-        <SectionDivider />
-        <Bento />
-        <Ask />
-        <Work />
-        <SectionDivider />
-        <Process />
-        <Experience />
-        <SectionDivider />
-        <Faq />
-        <Contact />
       </main>
       <Footer />
     </>

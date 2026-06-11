@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import GridPattern from "@/components/GridPattern";
+import Parallax from "@/components/Parallax";
 import Reveal from "@/components/Reveal";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
 import { profile } from "@/data/profile";
@@ -55,7 +56,13 @@ export default function Process() {
       aria-labelledby="process-heading"
       className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
-      <GridPattern />
+      {/* The grid is the section's background plane — it drifts slower than
+          the content, the same layer disagreement the hero establishes. */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <Parallax speed={10} className="absolute inset-0">
+          <GridPattern />
+        </Parallax>
+      </div>
       <div className="relative">
       <SectionHeading
         index="05"

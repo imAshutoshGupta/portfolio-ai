@@ -1,5 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
+import Parallax from "@/components/Parallax";
 import { profile, isPlaceholder } from "@/data/profile";
 
 export default function About() {
@@ -25,7 +26,8 @@ export default function About() {
           ))}
         </div>
 
-        <div className="space-y-10">
+        {/* The side rail drifts a touch slower than the bio — mid-ground depth. */}
+        <Parallax speed={5} className="space-y-10">
           {/* Currently — signals momentum, not just history. */}
           <Reveal>
             <div className="panel rounded-card p-6">
@@ -63,7 +65,7 @@ export default function About() {
               </ul>
             </Reveal>
           ))}
-        </div>
+        </Parallax>
       </div>
     </section>
   );

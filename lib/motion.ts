@@ -17,6 +17,19 @@ export function hasFinePointer(): boolean {
   return window.matchMedia("(pointer: fine)").matches;
 }
 
+/**
+ * Touch devices and low-core machines get the calm version of the scroll
+ * system: no parallax, no scroll-evolving backdrop — same cue the gl/
+ * mounts use to pick their lite scenes.
+ */
+export function isCoarseOrLowPower(): boolean {
+  if (typeof window === "undefined") return true;
+  return (
+    window.matchMedia("(pointer: coarse)").matches ||
+    (navigator.hardwareConcurrency ?? 8) <= 4
+  );
+}
+
 /** How long the intro preloader holds the screen (seconds). 0 with reduced motion. */
 export const INTRO_DURATION = 1.4;
 
