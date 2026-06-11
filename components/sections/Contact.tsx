@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/Reveal";
 import Magnetic from "@/components/Magnetic";
+import CoderSilhouette from "@/components/CoderSilhouette";
 import GlassBackdrop from "@/components/gl/GlassBackdrop";
 import { profile } from "@/data/profile";
 
@@ -108,6 +109,13 @@ export default function Contact() {
             ))}
           </div>
         </Reveal>
+
+        {/* Midnight coder, final beat: a satisfied lean-back — shipped. */}
+        <CoderSilhouette
+          pose="shipped"
+          flip
+          className="pointer-events-none absolute bottom-4 right-0 hidden w-24 md:block lg:w-28"
+        />
       </div>
     </section>
   );
