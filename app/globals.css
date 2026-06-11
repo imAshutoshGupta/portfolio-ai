@@ -137,6 +137,182 @@
     }
   }
 
+  /* ── Adapted from 21st.dev community components, re-themed to our tokens ── */
+
+  /* Spotlight Card (easemize/spotlight-card): pointer-tracked highlight on
+     the surface AND the 1px border. Vars set from JS; idle by default. */
+  .spotlight {
+    --spot-x: 50%;
+    --spot-y: 50%;
+    position: relative;
+  }
+
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(
+      22rem circle at var(--spot-x) var(--spot-y),
+      rgba(226, 178, 90, 0.07),
+      transparent 65%
+    );
+  }
+
+  .spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(
+      14rem circle at var(--spot-x) var(--spot-y),
+      rgba(226, 178, 90, 0.55),
+      transparent 70%
+    );
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .spotlight:hover::before,
+    .spotlight:hover::after {
+      opacity: 1;
+    }
+  }
+
+  /* Border Beam (magicui/border-beam): a point of light travelling the card
+     border — reserved for the flagship project. Static accent ring under
+     reduced motion. */
+  .border-beam {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    overflow: hidden;
+  }
+
+  .border-beam::before {
+    content: "";
+    position: absolute;
+    inset: -100%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg 322deg,
+      rgba(226, 178, 90, 0.9) 348deg,
+      transparent 360deg
+    );
+    animation: beam-spin 7s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .border-beam::before {
+      animation: none;
+      background: none;
+      inset: 0;
+      border: 1px solid rgba(226, 178, 90, 0.3);
+      border-radius: inherit;
+    }
+  }
+
+  /* Shimmer Button (dillionverma/shimmer-button): periodic sheen across the
+     primary CTA. The fill stays our accent; only the highlight travels. */
+  .btn-shimmer {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .btn-shimmer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      115deg,
+      transparent 32%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 68%
+    );
+    background-size: 280% 100%;
+    background-position: 120% 0;
+    animation: btn-sheen 3.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-shimmer::before {
+      animation: none;
+      background: none;
+    }
+  }
+
+  /* Text Shimmer (ibelick/text-shimmer): slow sheen through the closing
+     headline. Solid ink under reduced motion or without bg-clip support. */
+  .text-shimmer {
+    color: #ededef;
+  }
+
+  @supports (-webkit-background-clip: text) or (background-clip: text) {
+    @media (prefers-reduced-motion: no-preference) {
+      .text-shimmer {
+        background: linear-gradient(
+          110deg,
+          #ededef 38%,
+          #e2b25a 50%,
+          #ededef 62%
+        );
+        background-size: 240% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: text-sheen 7s linear infinite;
+      }
+    }
+  }
+
+  /* Tubelight Navbar (ayushmxxn/tubelight-navbar): glow bar above the active
+     link. Each link owns its lamp; cross-fades handle the handoff. */
+  .tubelight {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    width: 1.5rem;
+    height: 2px;
+    border-radius: 999px;
+    background: #e2b25a;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .tubelight::before {
+    content: "";
+    position: absolute;
+    inset: -6px -4px;
+    border-radius: 999px;
+    background: rgba(226, 178, 90, 0.25);
+    filter: blur(6px);
+  }
+
+  [aria-current="true"] .tubelight {
+    opacity: 1;
+  }
+
   /* Cursor-tracking sheen on project cards (vars set from JS). */
   .card-sheen {
     --sheen-x: 50%;
@@ -222,6 +398,44 @@
   }
   to {
     background-position: 100% 100%;
+  }
+}
+
+@keyframes beam-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes btn-sheen {
+  0%,
+  55% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -160% 0;
+  }
+}
+
+@keyframes text-sheen {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@keyframes grid-cell {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
   }
 }
 

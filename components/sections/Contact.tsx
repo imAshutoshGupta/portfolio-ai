@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import RevealText from "@/components/RevealText";
 import Reveal from "@/components/Reveal";
 import Magnetic from "@/components/Magnetic";
 import { profile } from "@/data/profile";
@@ -56,12 +55,17 @@ export default function Contact() {
           CONTACT
         </p>
 
-        <RevealText
-          id="contact-heading"
-          className="mx-auto max-w-4xl font-display text-[clamp(2.4rem,7vw,5.5rem)] font-medium leading-[1.02] tracking-tight text-ink"
-        >
-          Let's build something worth refreshing.
-        </RevealText>
+        {/* Text shimmer adapted from 21st.dev — ibelick/text-shimmer. A plain
+            heading (not RevealText) because background-clip: text can't paint
+            through the split-word transforms; the Reveal fade covers entry. */}
+        <Reveal>
+          <h2
+            id="contact-heading"
+            className="text-shimmer mx-auto max-w-4xl font-display text-[clamp(2.4rem,7vw,5.5rem)] font-medium leading-[1.02] tracking-tight"
+          >
+            Let&apos;s build something worth refreshing.
+          </h2>
+        </Reveal>
 
         <Reveal>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
@@ -74,7 +78,7 @@ export default function Contact() {
             <Magnetic strength={0.3}>
               <button
                 onClick={copyEmail}
-                className="rounded-full bg-accent px-8 py-4 font-medium text-base shadow-glow transition-all hover:brightness-110"
+                className="btn-shimmer rounded-full bg-accent px-8 py-4 font-medium text-base shadow-glow transition-all hover:brightness-110"
               >
                 {copied ? "Copied to clipboard ✓" : profile.contact.email}
               </button>

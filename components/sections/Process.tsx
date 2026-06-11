@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import SectionHeading from "@/components/SectionHeading";
+import GridPattern from "@/components/GridPattern";
 import Reveal from "@/components/Reveal";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
 import { profile } from "@/data/profile";
@@ -52,8 +53,10 @@ export default function Process() {
     <section
       id="process"
       aria-labelledby="process-heading"
-      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
+      className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
+      <GridPattern />
+      <div className="relative">
       <SectionHeading
         index="05"
         eyebrow="Process"
@@ -140,6 +143,7 @@ export default function Process() {
           </div>
         </div>
       </Reveal>
+      </div>
     </section>
   );
 }

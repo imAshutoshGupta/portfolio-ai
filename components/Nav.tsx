@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Magnetic from "./Magnetic";
 import { scrollToSection } from "@/lib/scroll";
 import { profile } from "@/data/profile";
@@ -13,7 +14,41 @@ const LINKS = [
   { id: "contact", label: "Contact" },
 ];
 
+/**
+ * Primary nav, upgraded with the "tubelight" treatment adapted from
+ * 21st.dev — ayushmxxn/tubelight-navbar (ported off framer-motion: each link
+ * owns a glow lamp that cross-fades via CSS, driven by an IntersectionObserver
+ * scrollspy). The link pill gains a border + blur once you scroll past the hero.
+ */
 export default function Nav() {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Scrollspy: whichever watched section occupies the middle band of the
+  // viewport owns the lamp.
+  useEffect(() => {
+    const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
+      (el): el is HTMLElement => el !== null,
+    );
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActiveId(entry.target.id);
+        }
+      },
+      { rootMargin: "-35% 0px -55% 0px" },
+    );
+    sections.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <nav
@@ -32,19 +67,30 @@ export default function Nav() {
           </button>
         </Magnetic>
 
-        <ul className="hidden items-center gap-1 md:flex">
-          {LINKS.map((link) => (
-            <li key={link.id}>
-              <Magnetic strength={0.3}>
+        <ul
+          className={`hidden items-center gap-1 rounded-full px-1.5 py-1 transition-all duration-500 md:flex ${
+            scrolled
+              ? "border border-line bg-base/70 shadow-lift backdrop-blur-md"
+              : "border border-transparent"
+          }`}
+        >
+          {LINKS.map((link) => {
+            const active = activeId === link.id;
+            return (
+              <li key={link.id}>
                 <button
                   onClick={() => scrollToSection(link.id)}
-                  className="rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-ink"
+                  aria-current={active || undefined}
+                  className={`relative rounded-full px-4 py-2 text-sm transition-colors ${
+                    active ? "text-ink" : "text-muted hover:text-ink"
+                  }`}
                 >
+                  <span className="tubelight" aria-hidden="true" />
                   {link.label}
                 </button>
-              </Magnetic>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
 
         <Magnetic strength={0.3} className="md:hidden">

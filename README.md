@@ -129,3 +129,19 @@ data/
 
 Every visual on the page is code-rendered — gradients, SVG, canvas/WebGL and
 styled DOM. There are no photos, stock images, or external image assets.
+
+## Component provenance
+
+A few interaction patterns are adapted from open community components on
+[21st.dev](https://21st.dev/community/components). Each was copied in as owned
+code, ported off framer-motion to CSS/GSAP (no new dependencies), and re-themed
+to this site's tokens:
+
+| Pattern | Adapted from | Used in |
+|---|---|---|
+| Tubelight navbar (scrollspy lamp) | [ayushmxxn/tubelight-navbar](https://21st.dev/community/components/ayushmxxn/tubelight-navbar/default) | Primary nav |
+| Spotlight card | [easemize/spotlight-card](https://21st.dev/community/components/easemize/spotlight-card/default) | Capabilities bento cards |
+| Border beam | [magicui/border-beam](https://21st.dev/community/components/s/border) | Flagship project card |
+| Shimmer button | [dillionverma/shimmer-button](https://21st.dev/community/components/dillionverma/shimmer-button) | Contact email CTA |
+| Text shimmer | [ibelick/text-shimmer](https://21st.dev/community/components/ibelick/text-shimmer) | Contact headline |
+| Animated grid pattern | [magicui/animated-grid-pattern](https://21st.dev/community/components/magicui/animated-grid-pattern/default) | Process section backdrop |

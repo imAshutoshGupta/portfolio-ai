@@ -41,6 +41,9 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         onPointerLeave={onPointerLeave}
         className="card-sheen panel group relative flex h-full flex-col rounded-card p-7 will-change-transform sm:p-9"
       >
+        {/* Border beam (adapted from 21st.dev — magicui/border-beam) marks the flagship. */}
+        {project.flagship && <div className="border-beam" aria-hidden="true" />}
+
         <div className="flex items-baseline justify-between">
           <span className="font-display text-sm text-muted">
             {String(index + 1).padStart(2, "0")}

@@ -1,5 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
+import SpotlightCard from "@/components/SpotlightCard";
 import Telemetry from "@/components/Telemetry";
 import { profile, type Strength } from "@/data/profile";
 
@@ -161,13 +162,15 @@ function StrengthCard({
   const Visual = VISUALS[strength.visual];
   return (
     <Reveal delay={delay} className={className}>
-      <article className="panel panel-hover flex h-full flex-col justify-between gap-6 rounded-card p-7">
-        <div>
-          <h3 className="font-display text-xl font-medium text-ink">{strength.title}</h3>
-          <p className="mt-3 text-sm leading-relaxed text-muted">{strength.description}</p>
-        </div>
-        <Visual />
-      </article>
+      <SpotlightCard className="h-full rounded-card">
+        <article className="panel panel-hover flex h-full flex-col justify-between gap-6 rounded-card p-7">
+          <div>
+            <h3 className="font-display text-xl font-medium text-ink">{strength.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted">{strength.description}</p>
+          </div>
+          <Visual />
+        </article>
+      </SpotlightCard>
     </Reveal>
   );
 }
@@ -197,6 +200,7 @@ export default function Bento() {
 
         {/* Availability — small, real, current. */}
         <Reveal delay={0.15}>
+          <SpotlightCard className="h-full rounded-card">
           <article className="panel panel-hover flex h-full flex-col justify-between gap-6 rounded-card p-7">
             <div>
               <h3 className="font-display text-xl font-medium text-ink">Where & when</h3>
@@ -207,6 +211,7 @@ export default function Bento() {
               {profile.location} · Remote-first · IST
             </p>
           </article>
+          </SpotlightCard>
         </Reveal>
 
         <Reveal delay={0.12} className="md:col-span-3">
