@@ -1,5 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
+import Atmosphere from "@/components/Atmosphere";
 import SpotlightCard from "@/components/SpotlightCard";
 import Telemetry from "@/components/Telemetry";
 import { profile, type Strength } from "@/data/profile";
@@ -182,8 +183,10 @@ export default function Bento() {
     <section
       id="capabilities"
       aria-labelledby="capabilities-heading"
-      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
+      className="relative overflow-hidden"
     >
+      <Atmosphere intensity="faint" />
+      <div className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section">
       <SectionHeading
         index="02"
         eyebrow="Capabilities"
@@ -219,6 +222,7 @@ export default function Bento() {
             <Telemetry />
           </article>
         </Reveal>
+      </div>
       </div>
     </section>
   );

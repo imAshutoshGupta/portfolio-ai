@@ -21,6 +21,14 @@
   --panel-from: #13131c;
   --panel-to: #0e0e14;
   --grain-opacity: 0.035;
+  /* ── Site-wide lighting system ──
+     One imaginary key light above the page (matches the hero's top
+     Lightformer), violet fill from the upper right, blue from the lower
+     left (matching the hero env + glass backdrop). Every shadow and glow
+     derives from these so all sections feel lit from the same world. */
+  --shadow-elev: rgba(0, 0, 0, 0.55);
+  --glow-violet-a: 0.07;
+  --glow-blue-a: 0.055;
 }
 
 :root[data-theme="light"] {
@@ -35,6 +43,9 @@
   --panel-from: #ffffff;
   --panel-to: #f1f1f8;
   --grain-opacity: 0.02;
+  --shadow-elev: rgba(30, 27, 56, 0.16);
+  --glow-violet-a: 0.06;
+  --glow-blue-a: 0.05;
 }
 
 /* Brief, smooth crossfade when the toggle flips themes (class added for
@@ -92,11 +103,15 @@ html.theme-switching *::after {
 }
 
 @layer components {
-  /* Opaque panel — the workhorse surface for cards, frames and rails. */
+  /* Opaque panel — the workhorse surface for cards, frames and rails.
+     Lit by the site's key light: 1px top highlight (light catching the
+     edge) + a soft shadow cast straight down. */
   .panel {
     border: 1px solid rgb(var(--c-ink) / 0.09);
     background: linear-gradient(180deg, var(--panel-from) 0%, var(--panel-to) 100%);
-    box-shadow: inset 0 1px 0 rgb(var(--c-ink) / 0.05);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--c-ink) / 0.05),
+      0 14px 36px -26px var(--shadow-elev);
   }
 
   .panel-hover {
@@ -111,7 +126,7 @@ html.theme-switching *::after {
     transform: translateY(-3px);
     box-shadow:
       inset 0 1px 0 rgb(var(--c-ink) / 0.05),
-      0 16px 48px -20px rgba(0, 0, 0, 0.45),
+      0 20px 48px -22px var(--shadow-elev),
       0 0 32px -12px rgb(var(--c-accent) / 0.2);
   }
 
@@ -150,24 +165,28 @@ html.theme-switching *::after {
     }
   }
 
-  /* FAQ accordion: grid-rows trick gives a smooth height animation without JS
-     measurement. */
-  .faq-body {
+  /* Disclosure body (FAQ accordion, project case studies): grid-rows trick
+     gives a smooth height animation without JS measurement. */
+  .faq-body,
+  .expand-body {
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .faq-body[data-open="true"] {
+  .faq-body[data-open="true"],
+  .expand-body[data-open="true"] {
     grid-template-rows: 1fr;
   }
 
-  .faq-body > div {
+  .faq-body > div,
+  .expand-body > div {
     overflow: hidden;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .faq-body {
+    .faq-body,
+    .expand-body {
       transition: none;
     }
   }
@@ -398,6 +417,16 @@ html.theme-switching *::after {
       radial-gradient(46rem 30rem at 64% 42%, rgb(var(--c-accent) / 0.12), transparent 62%),
       radial-gradient(38rem 26rem at 30% 70%, rgb(var(--c-accent-b) / 0.09), transparent 60%),
       rgb(var(--c-base));
+  }
+
+  /* Static fallback under the Selected Work 3D shard field — same lighting
+     language (violet upper right, blue lower left), zero GPU cost. */
+  .field-fallback {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(44rem 28rem at 82% 12%, rgb(var(--c-accent) / var(--glow-violet-a)), transparent 62%),
+      radial-gradient(40rem 30rem at 12% 85%, rgb(var(--c-accent-b) / var(--glow-blue-a)), transparent 60%);
   }
 
   /* Static fallback under the relocated glass shader (Contact backdrop). */

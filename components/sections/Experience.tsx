@@ -3,8 +3,9 @@
 import { useLayoutEffect, useRef } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
+import Atmosphere from "@/components/Atmosphere";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
-import { profile } from "@/data/profile";
+import { profile, isPlaceholder } from "@/data/profile";
 
 export default function Experience() {
   const lineRef = useRef<HTMLDivElement>(null);
@@ -36,8 +37,10 @@ export default function Experience() {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
+      className="relative overflow-hidden"
     >
+      <Atmosphere intensity="faint" parallax />
+      <div className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section">
       <SectionHeading
         index="06"
         eyebrow="Experience"
@@ -70,6 +73,13 @@ export default function Experience() {
                   <span className="text-muted"> · {entry.company}</span>
                 </h3>
                 <p className="mt-3 leading-relaxed text-muted">{entry.summary}</p>
+                <p
+                  className={`mt-2 text-sm leading-relaxed ${
+                    isPlaceholder(entry.scope) ? "italic text-muted" : "text-muted"
+                  }`}
+                >
+                  {entry.scope}
+                </p>
                 <ul className="mt-4 space-y-2">
                   {entry.highlights.map((highlight) => (
                     <li key={highlight} className="flex gap-3 text-[0.95rem] text-ink/75">
@@ -78,10 +88,57 @@ export default function Experience() {
                     </li>
                   ))}
                 </ul>
+                <ul className="mt-4 flex flex-wrap gap-2" aria-label="Technologies used in this role">
+                  {entry.tech.map((tech) => (
+                    <li
+                      key={tech}
+                      className={`rounded-full border border-line px-3 py-1 text-xs ${
+                        isPlaceholder(tech) ? "italic text-muted" : "text-ink/70"
+                      }`}
+                    >
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
               </Reveal>
             </li>
           ))}
         </ol>
+      </div>
+
+      {/* Education — quiet, factual, at the foot of the timeline. */}
+      <Reveal className="mt-20 max-w-3xl">
+        <h3 className="text-xs tracking-[0.2em] text-muted">EDUCATION</h3>
+        <ul className="mt-4 space-y-5">
+          {profile.education.map((entry) => (
+            <li key={`${entry.degree}-${entry.period}`} className="panel rounded-card p-6">
+              <p
+                className={`font-display text-lg font-medium ${
+                  isPlaceholder(entry.degree) ? "italic text-muted" : "text-ink"
+                }`}
+              >
+                {entry.degree}
+              </p>
+              <p
+                className={`mt-1 text-sm ${
+                  isPlaceholder(entry.institution) ? "italic text-muted" : "text-muted"
+                }`}
+              >
+                {entry.institution} · {entry.period}
+              </p>
+              {entry.detail && (
+                <p
+                  className={`mt-2 text-sm leading-relaxed ${
+                    isPlaceholder(entry.detail) ? "italic text-muted" : "text-muted"
+                  }`}
+                >
+                  {entry.detail}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </Reveal>
       </div>
     </section>
   );

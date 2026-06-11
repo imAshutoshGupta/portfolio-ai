@@ -8,8 +8,35 @@
  * ║                                                                          ║
  * ║  Entries marked [PLACEHOLDER] are realistic examples — replace them      ║
  * ║  with your real projects and experience.                                 ║
+ * ║                                                                          ║
+ * ║  Strings of the form "[PLACEHOLDER: …]" are structural gaps for YOU to   ║
+ * ║  fill (case studies, scope, education, current focus). They render       ║
+ * ║  as-is on the site so they're easy to spot, and they are automatically   ║
+ * ║  EXCLUDED from the AI assistant's knowledge until you replace them.      ║
+ * ║  Search this file for "[PLACEHOLDER" to find every one.                  ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
+
+/** True when a profile string is an unfilled "[PLACEHOLDER: …]" marker. */
+export function isPlaceholder(text: string): boolean {
+  return text.includes("[PLACEHOLDER");
+}
+
+/**
+ * The expandable mini case study behind each project card. Strings containing
+ * "[PLACEHOLDER" are rendered as-is on the site AND excluded from the AI's
+ * system prompt until you replace them — fill them in here and both update.
+ */
+export interface CaseStudy {
+  /** The core problem the project solves, and for whom. 2–3 sentences. */
+  problem: string;
+  /** What you personally owned — e.g. "Sole developer" or "Built the API + editor". */
+  role: string;
+  /** 2–4 key technical decisions and why you made them. */
+  decisions: string[];
+  /** Real, verifiable results only — numbers, adoption, lessons. */
+  outcome: string;
+}
 
 export interface Project {
   title: string;
@@ -23,6 +50,7 @@ export interface Project {
   /** Mark exactly one project as the flagship — the AI cites it as the strongest. */
   flagship?: boolean;
   year: string;
+  caseStudy: CaseStudy;
 }
 
 export interface ExperienceEntry {
@@ -30,7 +58,18 @@ export interface ExperienceEntry {
   company: string;
   period: string;
   summary: string;
+  /** Team size, reporting line, how much you owned end to end. */
+  scope: string;
+  /** Technologies actually used in this role — rendered as chips. */
+  tech: string[];
   highlights: string[];
+}
+
+export interface EducationEntry {
+  degree: string;
+  institution: string;
+  period: string;
+  detail?: string;
 }
 
 export interface SkillGroup {
@@ -121,6 +160,18 @@ export const profile = {
       live: "https://example.com",
       flagship: true,
       year: "2025",
+      caseStudy: {
+        problem:
+          "[PLACEHOLDER: The core problem Lumen Notes solves and for whom — 2–3 sentences.]",
+        role: "[PLACEHOLDER: What you owned — e.g. sole developer, or which parts you built.]",
+        decisions: [
+          "[PLACEHOLDER: Key technical decision #1 — e.g. how you designed the embedding/retrieval pipeline and why.]",
+          "[PLACEHOLDER: Key technical decision #2 — e.g. editor architecture, optimistic updates, offline drafts.]",
+          "[PLACEHOLDER: Key technical decision #3 — e.g. how the streaming chat is grounded in the user's notes.]",
+        ],
+        outcome:
+          "[PLACEHOLDER: Real outcome — users, performance numbers, what you learned. Verifiable results only.]",
+      },
     },
     {
       // [PLACEHOLDER]
@@ -131,6 +182,17 @@ export const profile = {
       tech: ["React", "Node.js", "Express", "MongoDB", "Chart.js"],
       repo: "https://github.com/imAshutoshGupta",
       year: "2024",
+      caseStudy: {
+        problem:
+          "[PLACEHOLDER: The training-tracking problem Pulsefit solves and why existing apps didn't cut it.]",
+        role: "[PLACEHOLDER: What you owned on Pulsefit.]",
+        decisions: [
+          "[PLACEHOLDER: Key technical decision #1 — e.g. why a PWA, how offline + background sync works.]",
+          "[PLACEHOLDER: Key technical decision #2 — e.g. how the progressive-overload analytics are computed.]",
+        ],
+        outcome:
+          "[PLACEHOLDER: Real outcome — usage, what shipped, what you'd do differently.]",
+      },
     },
     {
       // [PLACEHOLDER]
@@ -141,6 +203,17 @@ export const profile = {
       tech: ["Next.js", "TypeScript", "Redis", "PostgreSQL", "Docker"],
       repo: "https://github.com/imAshutoshGupta",
       year: "2024",
+      caseStudy: {
+        problem:
+          "[PLACEHOLDER: The multi-courier tracking problem Shipscan solves and who it's for.]",
+        role: "[PLACEHOLDER: What you owned on Shipscan.]",
+        decisions: [
+          "[PLACEHOLDER: Key technical decision #1 — e.g. webhook ingestion + status normalization across couriers.]",
+          "[PLACEHOLDER: Key technical decision #2 — e.g. why Redis, how the live dashboard stays fresh.]",
+        ],
+        outcome:
+          "[PLACEHOLDER: Real outcome — stores using it, volumes handled, lessons.]",
+      },
     },
     {
       // [PLACEHOLDER]
@@ -151,6 +224,20 @@ export const profile = {
       tech: ["Next.js", "Three.js", "GLSL", "GSAP", "Anthropic API"],
       repo: "https://github.com/imAshutoshGupta/portfolio-ai",
       year: "2026",
+      // This case study describes the actual codebase, so most of it is real;
+      // only the measurable outcome is yours to confirm after deploy.
+      caseStudy: {
+        problem:
+          "Developer portfolios tend to either look templated or hide the actual engineering behind screenshots. The goal here: a portfolio that is itself the proof — real-time 3D, a working AI product, and a strict performance budget, all in one zero-config deployable.",
+        role: "Sole designer and developer — design system, procedural 3D scenes, AI layer, motion, and deployment.",
+        decisions: [
+          "Every 3D element is generated from code at runtime — no model, texture, or HDR files ship, which keeps the first-load budget intact and makes the scenes fully theme-aware.",
+          "The AI assistant sits behind a provider interface: a zero-cost local engine answers from structured profile data, and a single environment variable swaps in Claude or another LLM with no UI changes.",
+          "All WebGL is lazy-loaded, frozen off-screen, and capped on DPR, with static fallbacks for reduced motion and low-power devices.",
+        ],
+        outcome:
+          "[PLACEHOLDER: Measured results once deployed — Lighthouse scores, first-load JS, anything verifiable.]",
+      },
     },
   ] satisfies Project[],
 
@@ -162,6 +249,9 @@ export const profile = {
       period: "2024 — Present",
       summary:
         "Building production web apps for startups and small businesses, end to end.",
+      scope:
+        "[PLACEHOLDER: Scope of this work — typical client/team size, whether you worked solo or with designers/PMs, how much you owned from spec to production.]",
+      tech: ["[PLACEHOLDER: technologies you actually used across these engagements]"],
       highlights: [
         "Shipped 6+ client projects from spec to deploy on Vercel and AWS",
         "Cut a client dashboard's load time from 4.2s to 1.1s through query and bundle optimization",
@@ -175,12 +265,32 @@ export const profile = {
       period: "2023 — 2024",
       summary:
         "Worked on a customer-facing React dashboard and internal Node.js services.",
+      scope:
+        "[PLACEHOLDER: Team size, who you reported to, and which parts of the product you were responsible for.]",
+      tech: ["[PLACEHOLDER: technologies you used in this role]"],
       highlights: [
         "Built reusable component library adopted across three internal products",
         "Wrote integration tests that caught regressions before two major releases",
       ],
     },
   ] satisfies ExperienceEntry[],
+
+  /** Education / credentials — shown at the foot of the Experience section. */
+  education: [
+    {
+      degree: "[PLACEHOLDER: degree, e.g. B.E. Computer Engineering]",
+      institution: "[PLACEHOLDER: institution name, city]",
+      period: "[PLACEHOLDER: years, e.g. 2019 — 2023]",
+      detail: "[PLACEHOLDER: optional — focus area, notable coursework, or grade. Delete this line if not needed.]",
+    },
+  ] satisfies EducationEntry[],
+
+  /**
+   * "Currently" card in the About section — what you're learning or building
+   * right now. Strong portfolios signal momentum, not just history.
+   */
+  currentFocus:
+    "[PLACEHOLDER: 1–2 lines on what you're exploring right now — e.g. a technology you're going deep on, or a side project in progress.]",
 
   /** Clickable example questions shown in the chat UI. */
   suggestedQuestions: [

@@ -1,4 +1,4 @@
-import { profile, allSkills, type Project } from "@/data/profile";
+import { profile, allSkills, isPlaceholder, type Project } from "@/data/profile";
 import type { AIProvider, ChatMessage } from "./types";
 
 /**
@@ -153,7 +153,14 @@ function describeProject(p: Project): string {
     p.repo ? `the repo is on GitHub (${p.repo})` : "",
     p.live ? `there's a live version at ${p.live}` : "",
   ].filter(Boolean).join(" and ");
-  return `${p.title} (${p.year}) — ${p.tagline} ${p.description} It's built with ${formatList(p.tech)}${links ? `, and ${links}` : ""}.`;
+  // Case-study fields join the answer only once they're filled in (unfilled
+  // "[PLACEHOLDER: …]" scaffolding never reaches a visitor).
+  const cs = p.caseStudy;
+  const depth = [
+    !isPlaceholder(cs.problem) ? ` The problem it tackles: ${cs.problem}` : "",
+    !isPlaceholder(cs.outcome) ? ` Outcome: ${cs.outcome}` : "",
+  ].join("");
+  return `${p.title} (${p.year}) — ${p.tagline} ${p.description}${depth} It's built with ${formatList(p.tech)}${links ? `, and ${links}` : ""}.`;
 }
 
 function formatList(items: readonly string[]): string {
