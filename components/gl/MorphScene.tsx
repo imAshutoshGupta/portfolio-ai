@@ -202,11 +202,15 @@ interface SceneProps {
 }
 
 function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
+  const stage = useRef<THREE.Group>(null); // staging: world position/scale (outside the cursor tilt)
   const group = useRef<THREE.Group>(null);
   const tilt = useRef<THREE.Group>(null);
   const scrollRef = useRef(0); // page scroll in viewport-heights
   const pointerRef = useRef({ x: 0, y: 0 }); // own NDC tracking — the canvas is pointer-events-none
-  const progress = useRef({ p: 0, h: 0 }); // p = morph, h = handoff into the page
+  const progress = useRef({ p: 0, c: 0, o: 1 }); // p = morph, c = companion blend, o = opacity
+  // The companion route: where each chapter wants the crystal (alternating
+  // page sides), measured from the live DOM so content length never matters.
+  const waypoints = useRef<{ top: number; side: number; fade: number }[]>([]);
   const flowTime = useRef(2.7); // non-zero start so frame one isn't a bald sphere
   const tmp = useRef({ q: new THREE.Quaternion(), v: new THREE.Vector3() });
   const { viewport } = useThree();
@@ -308,10 +312,41 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
     };
   }, [reduced, lite]);
 
+  // Measure the companion route. Re-measured on resize and whenever the
+  // page height changes (expanding case studies shift everything below).
+  useEffect(() => {
+    if (reduced || lite) return;
+    const route: [string, number, number][] = [
+      ["#about", -1, 1],
+      ["#capabilities", 1, 1],
+      ["#ask", -1, 1],
+      ["#work", 1, 1],
+      ["#process", -1, 1],
+      ["#experience", 1, 1],
+      ["#faq", -1, 1],
+      ["#contact", 0, 0], // the crystal bows out — Contact's glass is the closer
+    ];
+    const measure = () => {
+      waypoints.current = route.flatMap(([sel, side, fade]) => {
+        const el = document.querySelector<HTMLElement>(sel);
+        return el ? [{ top: el.getBoundingClientRect().top + window.scrollY, side, fade }] : [];
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.body);
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro.disconnect();
+    };
+  }, [reduced, lite]);
+
   useFrame((state, delta) => {
+    const st = stage.current;
     const g = group.current;
     const tl = tilt.current;
-    if (!g || !tl || reduced) return;
+    if (!st || !g || !tl || reduced) return;
     const d = Math.min(delta, 1 / 20);
     const t = state.clock.elapsedTime;
     const px = lite ? 0 : pointerRef.current.x;
@@ -327,13 +362,13 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
 
     // Weighted progress, critically damped so a flick reads as one smooth
     // resolve, not a scrubbed jitter. p drives the morph over the hero;
-    // h drives the handoff — the resolved crystal drifts up-right, shrinks
-    // and dissolves behind the incoming sections (the canvas is fixed).
+    // c blends the hero subject into its companion role — smaller, riding
+    // the page sides section by section (the canvas layer is fixed).
     const sy = scrollRef.current;
     damp(progress.current, "p", Math.min(sy / 0.9, 1), 0.35, d);
-    damp(progress.current, "h", THREE.MathUtils.clamp((sy - 0.95) / 0.75, 0, 1), 0.3, d);
+    damp(progress.current, "c", THREE.MathUtils.clamp((sy - 0.95) / 0.75, 0, 1), 0.3, d);
     const p = progress.current.p;
-    const h = progress.current.h;
+    const c = progress.current.c;
     const s = stateAt(p, look.rimGain);
     uniforms.uAmp.value = s.amp;
     uniforms.uFreq.value = s.freq;
@@ -341,30 +376,57 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
     uniforms.uGrid.value = s.grid;
     uniforms.uRim.value = s.rim;
     material.roughness = s.roughness;
-    material.opacity = 1 - THREE.MathUtils.smoothstep(h, 0.45, 1);
     // The fluid flows; the crystal is still.
     flowTime.current += d * s.flowSpeed;
     uniforms.uFlow.value = flowTime.current;
 
+    // Which chapter owns the crystal right now? (Defaults: right side, fully
+    // visible — i.e. the Stats/marquee stretch before the route begins.)
+    const vhPx = state.size.height;
+    const scrollCenter = sy * vhPx + vhPx * 0.55;
+    let side = 1;
+    let fade = 1;
+    for (const w of waypoints.current) {
+      if (scrollCenter >= w.top) {
+        side = w.side;
+        fade = w.fade;
+      }
+    }
+
+    // Staging targets: the hero pose blends into the companion pose, then the
+    // companion weaves left/right between waypoints. All damped — crossing a
+    // section boundary reads as one lazy glide, not a snap.
+    const vw = state.viewport.width;
+    const wide = vw > 5;
+    const heroX = wide ? vw * 0.27 : 0;
+    const heroY = wide ? 0.1 : 0.85;
+    const baseScale = THREE.MathUtils.clamp(vw / 8.5, 0.48, 1.05) * 1.45;
+    const lerp = THREE.MathUtils.lerp;
+    damp(st.position, "x", lerp(heroX, side * vw * 0.4, c), 0.6, d);
+    damp(st.position, "y", lerp(heroY, 0, c), 0.6, d);
+    const targetScale = baseScale * (1 - c * 0.58);
+    damp3(st.scale, [targetScale, targetScale, targetScale], 0.45, d);
+    damp(progress.current, "o", fade, 0.4, d);
+    material.opacity = progress.current.o;
+
     // Cursor excitation: pointer direction into object space (the surface
     // swell must stick to the side facing the cursor while the orb turns).
+    // The companion keeps a quieter version — a glint, not a wobble.
     const { q, v } = tmp.current;
     v.set(px * 1.2, py * 0.9, 0.9).normalize();
     g.getWorldQuaternion(q);
     v.applyQuaternion(q.invert());
     damp3(uniforms.uPointer.value, v, 0.25, d);
     uniforms.uPointer.value.normalize();
-    uniforms.uPoke.value = THREE.MathUtils.lerp(0.18, 0.05, p) * (1 - h);
+    uniforms.uPoke.value = lerp(0.18, 0.05, p);
 
-    // Slow autonomous turn + a settle as it resolves; the handoff carries it
-    // up and right out of the content's way.
+    // Slow autonomous turn + a settle as it resolves; the bob stays local so
+    // the cursor tilt never flings the far-from-origin companion around.
     g.rotation.y += d * (0.14 - p * 0.08);
     damp(g.rotation, "x", 0.15 + p * 0.3, 0.6, d);
-    g.position.y = Math.sin(t * 0.5) * 0.06 * (1 - p * 0.7) + p * 0.4 + h * 1.5;
-    g.position.x = h * 0.9;
-    g.scale.setScalar(1 - h * 0.4);
+    g.position.y = Math.sin(t * 0.5) * 0.06 * (1 - p * 0.4) + p * 0.4 * (1 - c);
 
-    // Cursor sway on the outer group, slower camera parallax behind it.
+    // Cursor sway on the tilt group, slower camera parallax behind it.
     damp(tl.rotation, "y", px * 0.5, 0.5, d);
     damp(tl.rotation, "x", py * 0.32, 0.42, d);
     damp(tl.rotation, "z", -0.1 + px * 0.14, 0.7, d);
@@ -375,14 +437,15 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
 
   // Staging: clearly right-of-center wherever the viewport is landscape-ish
   // (the name owns the left half); centered and lifted behind the headline
-  // on portrait/mobile, where it also scales down a touch.
+  // on portrait/mobile, where it also scales down a touch. In full mode the
+  // frame loop above takes over these values for the companion journey.
   const wide = viewport.width > 5;
   const offsetX = wide ? viewport.width * 0.27 : 0;
   const offsetY = wide ? 0.1 : 0.85;
   const scale = THREE.MathUtils.clamp(viewport.width / 8.5, 0.48, 1.05) * 1.45;
 
   return (
-    <group position={[offsetX, offsetY, 0]} scale={scale}>
+    <group ref={stage} position={[offsetX, offsetY, 0]} scale={scale}>
       <group ref={tilt} rotation={[0, 0, -0.1]}>
         <group ref={group} rotation={[0.15, 0.6, 0]}>
           <mesh geometry={geometry} material={material} />

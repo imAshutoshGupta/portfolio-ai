@@ -25,12 +25,12 @@ type Mode = "pending" | "full" | "lite";
  *  - desktop, fine pointer  → full mesh, AA, DPR ≤ 1.75, cursor + parallax
  *  - touch / low-power      → lighter mesh, DPR 1, no pointer nudge
  *  - prefers-reduced-motion → same scene, statically framed, single render
- * In full morph mode the canvas layer is viewport-FIXED so the orb can hand
- * off into the page: the resolved crystal drifts up-right, shrinks and
- * dissolves behind the first sections as they scroll over it. The layer is
- * hidden and the loop frozen once the handoff completes (~1.85 viewports),
- * off-screen, or when the tab hides. A CSS void underpaints the hero itself
- * (and is the no-WebGL experience).
+ * In full morph mode the canvas layer is viewport-FIXED and the resolved
+ * crystal becomes the page companion: it shrinks and weaves down the left/
+ * right margins section by section (route measured in MorphScene), bowing
+ * out at Contact. The layer is hidden and the loop frozen near the page
+ * bottom (after the fade) and whenever the tab hides. A CSS void underpaints
+ * the hero itself (and is the no-WebGL experience).
  */
 export default function Hero3D() {
   const theme = useTheme();
@@ -56,8 +56,12 @@ export default function Hero3D() {
     if (mode === "pending") return;
     const onScroll = () => {
       // The hero sits at the page top, so a scroll threshold is the
-      // visibility test; the fixed layer lives a bit longer for the handoff.
-      setPast(window.scrollY > window.innerHeight * (fixedHandoff ? 1.85 : 1.2));
+      // visibility test. The fixed companion layer lives until the orb has
+      // faded out at Contact, near the bottom of the document.
+      const limit = fixedHandoff
+        ? document.documentElement.scrollHeight - window.innerHeight * 1.4
+        : window.innerHeight * 1.2;
+      setPast(window.scrollY > limit);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
