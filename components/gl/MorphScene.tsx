@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer } from "@react-three/drei";
-import { damp } from "maath/easing";
+import { damp, damp3 } from "maath/easing";
 import * as THREE from "three";
 import type { Theme } from "@/lib/theme";
 
@@ -105,12 +105,19 @@ const VERT_HEAD = /* glsl */ `
 uniform float uAmp;
 uniform float uFreq;
 uniform float uFlow;
+uniform vec3 uPointer;
+uniform float uPoke;
 varying vec3 vDir;
 varying float vCrest;
+varying float vPoke;
 ${NOISE_GLSL}
 vec3 morphed(vec3 dir, out float crest){
   crest = fbm(dir * uFreq + vec3(0.0, uFlow * 0.35, uFlow));
-  return dir * (1.0 + crest * uAmp);
+  // The cursor physically excites the surface: a local swell on the side of
+  // the orb facing the pointer (uPointer is the damped pointer direction in
+  // object space; uPoke fades as the form resolves).
+  float poke = smoothstep(0.55, 0.95, dot(dir, uPointer));
+  return dir * (1.0 + crest * uAmp + poke * uPoke);
 }
 `;
 
@@ -129,6 +136,7 @@ vec3 objectNormal = normalize(cross(p1 - dPos, p2 - dPos));
 objectNormal *= sign(dot(objectNormal, dirN));
 vDir = dirN;
 vCrest = crest;
+vPoke = smoothstep(0.55, 0.95, dot(dirN, uPointer));
 `;
 
 const FRAG_HEAD = /* glsl */ `
@@ -140,6 +148,7 @@ uniform vec3 uViolet;
 uniform vec3 uBlue;
 varying vec3 vDir;
 varying float vCrest;
+varying float vPoke;
 `;
 
 /* Crystallize: blend the smooth analytic normal toward the true per-facet
@@ -155,7 +164,7 @@ normal = normalize(mix(normal, faceN, uFacet));
 const FRAG_EMISSIVE = /* glsl */ `
 float fres = pow(1.0 - clamp(dot(normalize(vViewPosition), normal), 0.0, 1.0), 2.6);
 vec3 duo = mix(uBlue, uViolet, clamp(vCrest * 0.5 + 0.5, 0.0, 1.0));
-totalEmissiveRadiance += duo * fres * uRim;
+totalEmissiveRadiance += duo * fres * uRim * (1.0 + vPoke * 1.1);
 float lon = atan(vDir.z, vDir.x) / 6.2831853 + 0.5;
 float lat = acos(clamp(vDir.y, -1.0, 1.0)) / 3.14159265;
 float lonD = fwidth(lon);
@@ -195,9 +204,11 @@ interface SceneProps {
 function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
   const group = useRef<THREE.Group>(null);
   const tilt = useRef<THREE.Group>(null);
-  const scrollRef = useRef(0);
-  const progress = useRef({ p: 0 });
+  const scrollRef = useRef(0); // page scroll in viewport-heights
+  const pointerRef = useRef({ x: 0, y: 0 }); // own NDC tracking — the canvas is pointer-events-none
+  const progress = useRef({ p: 0, h: 0 }); // p = morph, h = handoff into the page
   const flowTime = useRef(2.7); // non-zero start so frame one isn't a bald sphere
+  const tmp = useRef({ q: new THREE.Quaternion(), v: new THREE.Vector3() });
   const { viewport } = useThree();
   const look = LOOKS[theme];
 
@@ -214,6 +225,8 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
       uGrid: { value: 0 },
       uRim: { value: 0.85 },
       uGridDensity: { value: 18 },
+      uPointer: { value: new THREE.Vector3(0, 0, 1) },
+      uPoke: { value: 0 },
       uViolet: { value: new THREE.Color(look.envViolet) },
       uBlue: { value: new THREE.Color(look.envBlue) },
     }),
@@ -226,6 +239,7 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
       color: look.body,
       metalness: look.metalness,
       roughness: 0.36,
+      transparent: true, // the handoff dissolve (convex form, back faces culled)
       clearcoat: 1,
       clearcoatRoughness: 0.3,
       iridescence: look.iridescence,
@@ -279,12 +293,19 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
   useEffect(() => {
     if (reduced || lite) return;
     const onScroll = () => {
-      // The morph completes just before the hero fully leaves the viewport.
-      scrollRef.current = Math.min(window.scrollY / (window.innerHeight * 0.9), 1);
+      scrollRef.current = window.scrollY / window.innerHeight;
+    };
+    const onMove = (e: PointerEvent) => {
+      pointerRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointerRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointermove", onMove);
+    };
   }, [reduced, lite]);
 
   useFrame((state, delta) => {
@@ -293,8 +314,8 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
     if (!g || !tl || reduced) return;
     const d = Math.min(delta, 1 / 20);
     const t = state.clock.elapsedTime;
-    const px = lite ? 0 : state.pointer.x;
-    const py = lite ? 0 : state.pointer.y;
+    const px = lite ? 0 : pointerRef.current.x;
+    const py = lite ? 0 : pointerRef.current.y;
 
     if (lite) {
       // Single cheap state: gentle drift, slow flow, nothing scroll-bound.
@@ -304,41 +325,64 @@ function CrystallizingOrb({ theme, lite, reduced }: SceneProps) {
       return;
     }
 
-    // Weighted progress: the scroll target is followed critically damped, so
-    // a flick reads as one smooth resolve, not a scrubbed jitter.
-    damp(progress.current, "p", scrollRef.current, 0.35, d);
-    const s = stateAt(progress.current.p, look.rimGain);
+    // Weighted progress, critically damped so a flick reads as one smooth
+    // resolve, not a scrubbed jitter. p drives the morph over the hero;
+    // h drives the handoff — the resolved crystal drifts up-right, shrinks
+    // and dissolves behind the incoming sections (the canvas is fixed).
+    const sy = scrollRef.current;
+    damp(progress.current, "p", Math.min(sy / 0.9, 1), 0.35, d);
+    damp(progress.current, "h", THREE.MathUtils.clamp((sy - 0.95) / 0.75, 0, 1), 0.3, d);
+    const p = progress.current.p;
+    const h = progress.current.h;
+    const s = stateAt(p, look.rimGain);
     uniforms.uAmp.value = s.amp;
     uniforms.uFreq.value = s.freq;
     uniforms.uFacet.value = s.facet;
     uniforms.uGrid.value = s.grid;
     uniforms.uRim.value = s.rim;
     material.roughness = s.roughness;
+    material.opacity = 1 - THREE.MathUtils.smoothstep(h, 0.45, 1);
     // The fluid flows; the crystal is still.
     flowTime.current += d * s.flowSpeed;
     uniforms.uFlow.value = flowTime.current;
 
-    // Slow autonomous turn + a settle as it resolves; rises with the scroll
-    // into the depth-handoff fade like the old hero did.
-    g.rotation.y += d * (0.14 - progress.current.p * 0.08);
-    damp(g.rotation, "x", 0.15 + progress.current.p * 0.3, 0.6, d);
-    g.position.y = Math.sin(t * 0.5) * 0.06 * (1 - progress.current.p * 0.7) + progress.current.p * 0.55;
+    // Cursor excitation: pointer direction into object space (the surface
+    // swell must stick to the side facing the cursor while the orb turns).
+    const { q, v } = tmp.current;
+    v.set(px * 1.2, py * 0.9, 0.9).normalize();
+    g.getWorldQuaternion(q);
+    v.applyQuaternion(q.invert());
+    damp3(uniforms.uPointer.value, v, 0.25, d);
+    uniforms.uPointer.value.normalize();
+    uniforms.uPoke.value = THREE.MathUtils.lerp(0.18, 0.05, p) * (1 - h);
 
-    // Cursor: damped sway on the outer group, slower camera parallax behind it.
-    damp(tl.rotation, "y", px * 0.4, 0.5, d);
-    damp(tl.rotation, "x", py * 0.26, 0.42, d);
-    damp(tl.rotation, "z", -0.1 + px * 0.12, 0.7, d);
+    // Slow autonomous turn + a settle as it resolves; the handoff carries it
+    // up and right out of the content's way.
+    g.rotation.y += d * (0.14 - p * 0.08);
+    damp(g.rotation, "x", 0.15 + p * 0.3, 0.6, d);
+    g.position.y = Math.sin(t * 0.5) * 0.06 * (1 - p * 0.7) + p * 0.4 + h * 1.5;
+    g.position.x = h * 0.9;
+    g.scale.setScalar(1 - h * 0.4);
+
+    // Cursor sway on the outer group, slower camera parallax behind it.
+    damp(tl.rotation, "y", px * 0.5, 0.5, d);
+    damp(tl.rotation, "x", py * 0.32, 0.42, d);
+    damp(tl.rotation, "z", -0.1 + px * 0.14, 0.7, d);
     damp(state.camera.position, "x", px * 0.5, 1.1, d);
     damp(state.camera.position, "y", -py * 0.3, 1.1, d);
     state.camera.lookAt(0, 0.1, 0);
   });
 
-  // Same staging as before: right-of-center on wide viewports, centered small.
-  const offsetX = viewport.width > 7 ? viewport.width * 0.16 : 0;
-  const scale = THREE.MathUtils.clamp(viewport.width / 8.5, 0.55, 1.05) * 1.45;
+  // Staging: clearly right-of-center wherever the viewport is landscape-ish
+  // (the name owns the left half); centered and lifted behind the headline
+  // on portrait/mobile, where it also scales down a touch.
+  const wide = viewport.width > 5;
+  const offsetX = wide ? viewport.width * 0.27 : 0;
+  const offsetY = wide ? 0.1 : 0.85;
+  const scale = THREE.MathUtils.clamp(viewport.width / 8.5, 0.48, 1.05) * 1.45;
 
   return (
-    <group position={[offsetX, 0.1, 0]} scale={scale}>
+    <group position={[offsetX, offsetY, 0]} scale={scale}>
       <group ref={tilt} rotation={[0, 0, -0.1]}>
         <group ref={group} rotation={[0.15, 0.6, 0]}>
           <mesh geometry={geometry} material={material} />

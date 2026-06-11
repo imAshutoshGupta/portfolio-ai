@@ -29,7 +29,8 @@ function ChipRow({ hidden }: { hidden?: boolean }) {
  */
 export default function TechMarquee() {
   return (
-    <section aria-label="Technologies" className="overflow-hidden py-10">
+    // relative: must paint above the hero's fixed handoff canvas.
+    <section aria-label="Technologies" className="relative overflow-hidden py-10">
       <div className="marquee-mask">
         <div className="marquee-track">
           <ChipRow />

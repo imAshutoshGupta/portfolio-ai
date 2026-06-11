@@ -47,12 +47,24 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
   FBM-displaced (molten) at the top of the page, that resolves as you scroll out of the hero
   (flow freezes, facets sharpen via screen-space-derivative normals, a violet→blue structure
   grid surfaces, roughness polishes). All morphing is shader uniforms over fixed topology
-  (detail 5 ≈ 20k tris, lite 4) — CPU writes ~8 floats/frame, damped scroll progress, three
-  eased keyframes in `stateAt()`. Cursor sway + camera parallax as before. Reduced motion =
-  still frame at p=0.62; lite = fixed structured state, slow drift, no scroll/pointer work.
+  (detail 5 ≈ 20k tris, lite 4) — CPU writes ~10 floats/frame, damped scroll progress, three
+  eased keyframes in `stateAt()`. Staging: orb clearly right (viewport.width > 5 →
+  x = width×0.27), the h1 is `max-w-[11ch]` so the name wraps two lines on the left;
+  portrait/mobile centers + lifts the orb behind the headline. Cursor: damped sway +
+  camera parallax PLUS surface excitation — uPointer (object-space, damped) drives a
+  local swell + rim glow toward the cursor (fades as the form resolves); pointer comes
+  from MorphScene's own window listener since its layer is pointer-events-none.
+  Continuity/handoff: in full mode the canvas layer is viewport-FIXED — after the morph
+  (p: 0→0.9 vh) a second damped progress h (0.95→1.7 vh) drifts the crystal up-right,
+  shrinks it and fades material.opacity so it dissolves behind Stats/TechMarquee; the
+  layer is `hidden` + frameloop "never" past 1.85 vh. Stats + TechMarquee sections are
+  `relative` ON PURPOSE so their content paints above that fixed canvas — keep it.
+  Reduced motion = still frame at p=0.62, absolute layer, no handoff; lite = fixed
+  structured state, slow drift, absolute layer, no scroll/pointer work.
   `HERO_VARIANT` const in `gl/Hero3D.tsx` flips between "morph" and "mobius" (HeroScene.tsx
-  kept intact as the safety valve). `.hero3d-fallback` retuned to gather the glow behind the
-  orb; the page background remains the single Atmosphere system — no second backdrop.
+  kept intact as the safety valve; it keeps its original absolute, event-receiving layer).
+  `.hero3d-fallback` retuned to gather the glow behind the orb; the page background remains
+  the single Atmosphere system — no second backdrop.
 - `data/profile.ts` contains `[PLACEHOLDER: …]` strings awaiting the owner's real content
   (incl. `narrative.statement[2]`). They render italicized on-site and are auto-excluded
   from the AI prompt via `isPlaceholder()`.
