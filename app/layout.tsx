@@ -23,7 +23,11 @@ const serif = Instrument_Serif({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// Explicit URL wins; otherwise Vercel's auto-injected deployment URL keeps
+// OG/Twitter previews correct on zero-config preview deploys.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 const title = `${profile.name} — ${profile.role}`;
 const description = `${profile.tagline} Based in ${profile.location}. Explore selected work or ask the built-in AI assistant anything about ${profile.firstName}'s skills and experience.`;
 
