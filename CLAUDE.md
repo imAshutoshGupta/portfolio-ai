@@ -16,9 +16,9 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
 
 ## Current state
 
-- Branch: `claude/modest-allen-fvkhzb` (eighth iteration: density + color — dead space cut,
-  accent propagated through the body).
-- Builds clean; first-load JS for `/` ≈ **171 kB** (budget: stay ≈168–175 kB; all three.js is
+- Branch: `claude/bold-thompson-qaab71` (ninth iteration: the midnight coder — a recurring
+  silhouette companion threaded through the sections).
+- Builds clean; first-load JS for `/` ≈ **173 kB** (budget: stay ≈168–175 kB; all three.js is
   lazy-loaded outside this number).
 - Site flow: Preloader → Hero (Möbius 3D) → Stats → TechMarquee → About → NarrativeStatement
   (scroll-pinned beat) → Bento (capabilities) → Ask (AI chat) → divider "The proof" → Work
@@ -42,6 +42,15 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
   angles respected) under About/Bento/Ask/Process/Experience/FAQ; `.panel` borders/glow
   and `--panel-from/to` are accent-tinted per theme; Atmosphere holds more mid-page
   presence (×2.1 glow alphas). Contact's animated shimmer stays the crescendo.
+- Midnight coder (9th pass): `CoderSilhouette.tsx` — one inline-SVG pictogram (figure/desk in
+  ink tokens, screen glow in the accent pair + `--glow-*-a`), mounted in six section corners
+  (md+ only, in existing bottom-padding zones — no new vertical space) as a wordless story:
+  About `typing` → Bento `coffee` → Ask `glance` → Work `leanIn` → Process `debug` →
+  Contact `shipped`. Fine-pointer/full-power: head/body turn toward the cursor and the glow
+  brightens with proximity — ONE shared window pointermove + one rAF for all instances, and
+  an IntersectionObserver subscribes only the instance near the viewport; smoothing is CSS
+  transitions (transform/opacity only, no loop). Touch/low-power: static pose + gentle CSS
+  glow pulse; reduced motion: fully still. Always aria-hidden + pointer-events-none.
 - `data/profile.ts` contains `[PLACEHOLDER: …]` strings awaiting the owner's real content
   (incl. `narrative.statement[2]`). They render italicized on-site and are auto-excluded
   from the AI prompt via `isPlaceholder()`.
@@ -99,6 +108,8 @@ components/
                       reduced motion / coarse / low-power
   SectionDivider.tsx  Accent-lit hairline seam, scrub-drawn, optional narrative kicker
                       label (from profile.narrative.handoffs)
+  CoderSilhouette.tsx The midnight coder: recurring SVG pictogram companion (six poses,
+                      cursor-following head/glow, viewport-scoped shared pointer tracker)
   Reveal.tsx          Scroll fade-rise, scrubbed by default (`once` opt-out) |
                       RevealText.tsx split-text headline reveal, scrubbed when scroll-
                       triggered, timed on mount (hero)
