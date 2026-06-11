@@ -131,17 +131,19 @@ export default function Ask() {
     <section
       id="ask"
       aria-labelledby="ask-heading"
-      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
+      className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
+      <div className="section-wash" aria-hidden="true" />
       <SectionHeading
         index="03"
         eyebrow="Ask my portfolio"
         title="Don't scroll. Just ask."
         support={`A shipped AI product, embedded in the portfolio it describes. Ask about ${profile.firstName}'s projects, skills, or experience — like you would in an interview.`}
         headingId="ask-heading"
+        accent
       />
 
-      <Reveal delay={0.1} className="mt-14">
+      <Reveal delay={0.1} className="relative mt-10">
         {/* Faux app window: chrome + sidebar + the real, working chat. */}
         <div className="panel mx-auto max-w-5xl overflow-hidden rounded-card shadow-lift">
           {/* Title bar */}

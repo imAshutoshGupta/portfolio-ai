@@ -22,17 +22,19 @@ export default function Faq() {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
+      className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
+      <div className="section-wash" aria-hidden="true" />
       <SectionHeading
         index="07"
         eyebrow="FAQ"
         title="Questions, answered."
         support="The short versions — the assistant above has the long ones."
         headingId="faq-heading"
+        accent
       />
 
-      <Reveal delay={0.1} className="mt-14">
+      <Reveal delay={0.1} className="relative mt-10">
         <div className="mx-auto max-w-3xl divide-y divide-line border-y border-line">
           {profile.faq.map((item, i) => {
             const isOpen = open === i;

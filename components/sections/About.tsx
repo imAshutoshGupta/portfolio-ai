@@ -8,16 +8,18 @@ export default function About() {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
+      className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
+      <div className="section-wash" aria-hidden="true" />
       <SectionHeading
         index="01"
         eyebrow="About"
         title="Engineering with curiosity, shipped with care."
         headingId="about-heading"
+        accent
       />
 
-      <div className="mt-14 grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-24">
+      <div className="relative mt-10 grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-24">
         <div className="space-y-6">
           {profile.bio.map((paragraph, i) => (
             <Reveal key={i} delay={i * 0.1}>

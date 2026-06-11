@@ -46,8 +46,10 @@ const config: Config = {
       },
       spacing: {
         // Section rhythm tokens — use py-section / py-section-sm, not ad-hoc values.
-        section: "10rem",
-        "section-sm": "7rem",
+        // Tightened in the density pass: content should fill the viewport,
+        // never float in a mostly-empty screen.
+        section: "7rem",
+        "section-sm": "4.5rem",
       },
     },
   },

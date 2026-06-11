@@ -56,6 +56,7 @@ export default function Process() {
       aria-labelledby="process-heading"
       className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section"
     >
+      <div className="section-wash" aria-hidden="true" />
       {/* The grid is the section's background plane — it drifts slower than
           the content, the same layer disagreement the hero establishes. */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -72,7 +73,7 @@ export default function Process() {
         headingId="process-heading"
       />
 
-      <Reveal delay={0.1} className="mt-14">
+      <Reveal delay={0.1} className="mt-10">
         <div className="panel overflow-hidden rounded-card">
           <div
             role="tablist"

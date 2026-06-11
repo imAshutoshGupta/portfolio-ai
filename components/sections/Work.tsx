@@ -199,9 +199,10 @@ export default function Work() {
           title="Things I've built and shipped."
           support="Each project opens into a short case study — the problem, the role, the decisions, the result."
           headingId="work-heading"
+          accent
         />
 
-        <div className="mt-14 grid items-start gap-5 md:grid-cols-2">
+        <div className="mt-10 grid items-start gap-5 md:grid-cols-2">
           {/* The two columns drift at different rates — the staggered-scroll
               feel of a real plan chest, not a uniform grid. */}
           {profile.projects.map((project, i) => (

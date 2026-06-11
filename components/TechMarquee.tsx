@@ -29,7 +29,7 @@ function ChipRow({ hidden }: { hidden?: boolean }) {
  */
 export default function TechMarquee() {
   return (
-    <section aria-label="Technologies" className="overflow-hidden py-14">
+    <section aria-label="Technologies" className="overflow-hidden py-10">
       <div className="marquee-mask">
         <div className="marquee-track">
           <ChipRow />

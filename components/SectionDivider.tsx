@@ -40,11 +40,11 @@ export default function SectionDivider({ label }: SectionDividerProps) {
   }, [label]);
 
   return (
-    <div ref={rootRef} aria-hidden="true" className="mx-auto max-w-site px-6 py-8 sm:px-10">
+    <div ref={rootRef} aria-hidden="true" className="mx-auto max-w-site px-6 py-4 sm:px-10">
       {label && (
         <p
           data-divider-label
-          className="mb-6 text-center text-xs font-medium tracking-[0.3em] text-muted"
+          className="mb-5 text-center text-xs font-medium tracking-[0.3em] text-muted"
         >
           {label.toUpperCase()}
         </p>

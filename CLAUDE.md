@@ -16,7 +16,8 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
 
 ## Current state
 
-- Branch: `claude/determined-carson-kf6psh` (seventh iteration: scroll-authored narrative).
+- Branch: `claude/modest-allen-fvkhzb` (eighth iteration: density + color — dead space cut,
+  accent propagated through the body).
 - Builds clean; first-load JS for `/` ≈ **171 kB** (budget: stay ≈168–175 kB; all three.js is
   lazy-loaded outside this number).
 - Site flow: Preloader → Hero (Möbius 3D) → Stats → TechMarquee → About → NarrativeStatement
@@ -30,6 +31,17 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
   reduced motion AND on coarse/low-power devices (`isCoarseOrLowPower()` in lib/motion.ts) —
   those get static gradients and plain content. NarrativeStatement pins via CSS sticky
   (never hijacks scroll); its copy + the divider kickers live in `profile.narrative`.
+- Density + color (8th pass): section rhythm tokens tightened (`section` 7rem,
+  `section-sm` 4.5rem — keep them confident, not cavernous); the one pinned beat
+  (NarrativeStatement) holds 160vh, don't grow it back; heading→content gaps are mt-10/12.
+  The Contact color vocabulary now runs through the body: `.text-gradient` (static
+  violet→blue type, AA at headline sizes both themes, solid-accent fallback) on key
+  headlines (About/Ask/Work/FAQ via SectionHeading's `accent` prop — plain h2 + Reveal,
+  since bg-clip can't paint through RevealText's split words), the narrative statement
+  lines, and the Stats numbers; `.section-wash` (static token-based accent tint, lighting
+  angles respected) under About/Bento/Ask/Process/Experience/FAQ; `.panel` borders/glow
+  and `--panel-from/to` are accent-tinted per theme; Atmosphere holds more mid-page
+  presence (×2.1 glow alphas). Contact's animated shimmer stays the crescendo.
 - `data/profile.ts` contains `[PLACEHOLDER: …]` strings awaiting the owner's real content
   (incl. `narrative.statement[2]`). They render italicized on-site and are auto-excluded
   from the AI prompt via `isPlaceholder()`.
@@ -41,7 +53,8 @@ app/
   layout.tsx          Root layout: fonts, SEO/OG metadata, pre-paint theme script
   page.tsx            Section assembly: fixed Atmosphere + narrative arc + labeled dividers
   globals.css         Theme tokens (--c-*), lighting tokens (--shadow-elev, --glow-*-a),
-                      .panel surfaces, 21st.dev component styles, keyframes
+                      .panel surfaces, .text-gradient + .section-wash (body accent
+                      treatment), 21st.dev component styles, keyframes
   api/ask/route.ts    POST endpoint: streams AI answers, X-AI-Provider header
   opengraph-image.tsx Code-rendered OG image
 data/
@@ -91,7 +104,7 @@ components/
                       triggered, timed on mount (hero)
   Nav.tsx (tubelight scrollspy) · ThemeToggle · Preloader · SmoothScroll (Lenis) ·
   Cursor · Magnetic · SpotlightCard · GridPattern · TechMarquee · Telemetry · CountUp ·
-  SectionHeading (header + slight parallax) · Footer
+  SectionHeading (header + slight parallax; `accent` prop → gradient headline) · Footer
 ```
 
 ## Design invariants (do not violate)

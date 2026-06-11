@@ -184,6 +184,7 @@ export default function Bento() {
       aria-labelledby="capabilities-heading"
       className="relative overflow-hidden"
     >
+      <div className="section-wash" aria-hidden="true" />
       <div className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section">
       <SectionHeading
         index="02"
@@ -193,7 +194,7 @@ export default function Bento() {
         headingId="capabilities-heading"
       />
 
-      <div className="mt-14 grid gap-5 md:grid-cols-3">
+      <div className="mt-10 grid gap-5 md:grid-cols-3">
         <StrengthCard strength={code} className="md:col-span-2" delay={0} />
         <StrengthCard strength={ai} delay={0.08} />
         <StrengthCard strength={performance} delay={0.05} />
