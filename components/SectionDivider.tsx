@@ -3,39 +3,55 @@
 import { useLayoutEffect, useRef } from "react";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
 
+interface SectionDividerProps {
+  /** Optional narrative kicker over the seam (from profile.narrative.handoffs). */
+  label?: string;
+}
+
 /**
- * An authored seam between chapters of the page: a hairline that lights up
- * from its center as it enters the viewport, with a soft accent bloom — the
- * same violet the rest of the lighting system uses. Static under reduced
- * motion. Purely decorative.
+ * An authored seam between chapters of the page: a hairline that draws
+ * itself in step with scroll, with a soft accent bloom — the same violet the
+ * rest of the lighting system uses — and an optional kicker line that hands
+ * the story to the next chapter. Static under reduced motion. Purely
+ * decorative.
  */
-export default function SectionDivider() {
-  const lineRef = useRef<HTMLDivElement>(null);
+export default function SectionDivider({ label }: SectionDividerProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    const line = lineRef.current;
-    if (!line || prefersReducedMotion()) return;
+    const root = rootRef.current;
+    if (!root || prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
+      const scrollTrigger = { trigger: root, start: "top 92%", end: "top 65%", scrub: 0.6 };
       gsap.fromTo(
-        line,
+        "[data-divider-line]",
         { scaleX: 0, autoAlpha: 0 },
-        {
-          scaleX: 1,
-          autoAlpha: 1,
-          duration: 1.3,
-          ease: "power3.inOut",
-          scrollTrigger: { trigger: line, start: "top 85%", once: true },
-        },
+        { scaleX: 1, autoAlpha: 1, ease: "power1.inOut", scrollTrigger },
       );
-    }, line);
+      if (label) {
+        gsap.fromTo(
+          "[data-divider-label]",
+          { autoAlpha: 0, y: 14 },
+          { autoAlpha: 1, y: 0, ease: "power1.out", scrollTrigger: { ...scrollTrigger } },
+        );
+      }
+    }, root);
     return () => ctx.revert();
-  }, []);
+  }, [label]);
 
   return (
-    <div aria-hidden="true" className="mx-auto max-w-site px-6 sm:px-10">
+    <div ref={rootRef} aria-hidden="true" className="mx-auto max-w-site px-6 py-8 sm:px-10">
+      {label && (
+        <p
+          data-divider-label
+          className="mb-6 text-center text-xs font-medium tracking-[0.3em] text-muted"
+        >
+          {label.toUpperCase()}
+        </p>
+      )}
       <div className="relative mx-auto h-px max-w-3xl">
         <div
-          ref={lineRef}
+          data-divider-line
           className="h-px w-full motion-reduce:!opacity-100 motion-reduce:!scale-x-100"
           style={{
             background:

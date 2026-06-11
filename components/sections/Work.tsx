@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
+import Parallax from "@/components/Parallax";
 import WorkField from "@/components/gl/WorkField";
 import { gsap, ScrollTrigger, hasFinePointer, prefersReducedMotion } from "@/lib/motion";
 import { profile, isPlaceholder, type Project } from "@/data/profile";
@@ -201,8 +202,12 @@ export default function Work() {
         />
 
         <div className="mt-14 grid items-start gap-5 md:grid-cols-2">
+          {/* The two columns drift at different rates — the staggered-scroll
+              feel of a real plan chest, not a uniform grid. */}
           {profile.projects.map((project, i) => (
-            <ProjectCard key={project.title} project={project} index={i} />
+            <Parallax key={project.title} speed={i % 2 === 0 ? 3 : 7}>
+              <ProjectCard project={project} index={i} />
+            </Parallax>
           ))}
         </div>
       </div>

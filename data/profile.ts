@@ -292,6 +292,27 @@ export const profile = {
   currentFocus:
     "[PLACEHOLDER: 1–2 lines on what you're exploring right now — e.g. a technology you're going deep on, or a side project in progress.]",
 
+  /**
+   * Connective copy for the scroll narrative: the pinned statement between
+   * About and Capabilities, and the small kicker lines on chapter seams.
+   * Authorial voice only — the statement lines are derived from the bio
+   * above and must never introduce new claims. The third beat is yours.
+   */
+  narrative: {
+    /** Scroll-pinned statement — one line per beat, crossfading as you scroll. */
+    statement: [
+      "Curiosity about AI is what pulled me into programming.",
+      "Performance budgets, clean APIs, and interfaces that feel alive are what keep me here.",
+      "[PLACEHOLDER: closing beat in your own words — where you want to take the work next.]",
+    ],
+    /** Kicker lines on the seams hand the story to the next chapter. */
+    handoffs: {
+      work: "The proof",
+      process: "The method",
+      contact: "The next chapter",
+    },
+  },
+
   /** Clickable example questions shown in the chat UI. */
   suggestedQuestions: [
     "What's his strongest project?",

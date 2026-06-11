@@ -3,12 +3,20 @@
 import { useId, useState } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
+import { ScrollTrigger } from "@/lib/motion";
 import { profile } from "@/data/profile";
 
 /** Accessible accordion: native buttons, aria-expanded, CSS grid-rows height animation. */
 export default function Faq() {
   const [open, setOpen] = useState<number | null>(0);
   const baseId = useId();
+
+  const toggle = (index: number, isOpen: boolean) => {
+    setOpen(isOpen ? null : index);
+    // Heights below shift; let downstream scrubbed triggers re-measure once
+    // the grid-rows transition settles (same pattern as the Work cards).
+    window.setTimeout(() => ScrollTrigger.refresh(), 500);
+  };
 
   return (
     <section
@@ -35,7 +43,7 @@ export default function Faq() {
                     id={`${baseId}-q-${i}`}
                     aria-expanded={isOpen}
                     aria-controls={`${baseId}-a-${i}`}
-                    onClick={() => setOpen(isOpen ? null : i)}
+                    onClick={() => toggle(i, isOpen)}
                     className="group flex w-full items-center justify-between gap-6 py-6 text-left"
                   >
                     <span

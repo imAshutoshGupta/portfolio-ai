@@ -16,35 +16,46 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
 
 ## Current state
 
-- Branch: `claude/nifty-mccarthy-4399ki`. Last commit: `2ad7f31` (sixth iteration).
+- Branch: `claude/determined-carson-kf6psh` (seventh iteration: scroll-authored narrative).
 - Builds clean; first-load JS for `/` ≈ **171 kB** (budget: stay ≈168–175 kB; all three.js is
   lazy-loaded outside this number).
-- Site flow: Preloader → Hero (Möbius 3D) → Stats → TechMarquee → About → divider → Bento
-  (capabilities) → Ask (AI chat) → Work (case studies + shard field 3D) → divider → Process →
-  Experience (+ education) → divider → FAQ → Contact (glass shader backdrop) → Footer.
-- `data/profile.ts` contains `[PLACEHOLDER: …]` strings awaiting the owner's real content.
-  They render italicized on-site and are auto-excluded from the AI prompt via `isPlaceholder()`.
+- Site flow: Preloader → Hero (Möbius 3D) → Stats → TechMarquee → About → NarrativeStatement
+  (scroll-pinned beat) → Bento (capabilities) → Ask (AI chat) → divider "The proof" → Work
+  (case studies + shard field 3D) → divider "The method" → Process → Experience (+ education)
+  → divider "The next chapter" → FAQ → Contact (glass shader backdrop) → Footer.
+- Scroll system (7th pass): one fixed Atmosphere evolves under the whole page via a single
+  scrubbed timeline; Reveal/RevealText are scrubbed to scroll position by default (Reveal has
+  a `once` opt-out); Parallax.tsx gives layered drift (section headers ~4, About rail 5,
+  Work card columns 3/7, Process grid 10). Scrubbed extras and parallax are skipped under
+  reduced motion AND on coarse/low-power devices (`isCoarseOrLowPower()` in lib/motion.ts) —
+  those get static gradients and plain content. NarrativeStatement pins via CSS sticky
+  (never hijacks scroll); its copy + the divider kickers live in `profile.narrative`.
+- `data/profile.ts` contains `[PLACEHOLDER: …]` strings awaiting the owner's real content
+  (incl. `narrative.statement[2]`). They render italicized on-site and are auto-excluded
+  from the AI prompt via `isPlaceholder()`.
 
 ## File map
 
 ```
 app/
   layout.tsx          Root layout: fonts, SEO/OG metadata, pre-paint theme script
-  page.tsx            Section assembly + chapter Atmosphere wrap + SectionDividers
+  page.tsx            Section assembly: fixed Atmosphere + narrative arc + labeled dividers
   globals.css         Theme tokens (--c-*), lighting tokens (--shadow-elev, --glow-*-a),
                       .panel surfaces, 21st.dev component styles, keyframes
   api/ask/route.ts    POST endpoint: streams AI answers, X-AI-Provider header
   opengraph-image.tsx Code-rendered OG image
 data/
   profile.ts          SINGLE SOURCE OF TRUTH: all copy, projects (+caseStudy), experience
-                      (+scope/tech), education, currentFocus, stats, FAQ. Exports
-                      isPlaceholder(). Feeds both the visible site AND the AI.
+                      (+scope/tech), education, currentFocus, narrative (statement +
+                      handoff kickers), stats, FAQ. Exports isPlaceholder(). Feeds both
+                      the visible site AND the AI.
 lib/
   ai/index.ts         Provider selection (env-driven), ai/types.ts AIProvider interface
   ai/local.ts         Zero-cost demo engine: intent matching over profile.ts, fake streaming
   ai/anthropic.ts     Claude provider | ai/openai.ts OpenAI provider
   ai/prompt.ts        System prompt built from profile.ts; filters [PLACEHOLDER strings
-  motion.ts           gsap + ScrollTrigger registration, prefersReducedMotion, hasFinePointer
+  motion.ts           gsap + ScrollTrigger registration, prefersReducedMotion,
+                      hasFinePointer, isCoarseOrLowPower (drops parallax/scroll extras)
   scroll.ts           Lenis-aware scrollToSection | theme.ts useTheme() + applyTheme()
 components/gl/        (all WebGL: dynamic import, ssr:false, frameloop frozen off-screen,
                        DPR capped, disposed on unmount, CSS fallback floor underneath)
@@ -64,13 +75,23 @@ components/sections/  One file per page section; all consume profile.ts
   Ask.tsx             AI chat window (fetch /api/ask, streamed)
   About / Bento / Stats / Process / Faq / Contact  as named
 components/
-  Atmosphere.tsx      Site-wide depth layer: violet glow upper-right, blue lower-left,
-                      optional GSAP scroll parallax — THE lighting-coherence primitive
-  SectionDivider.tsx  Accent-lit hairline seam between page chapters
-  Reveal.tsx          Scroll fade-rise (once) | RevealText.tsx split-text headline reveal
+  Atmosphere.tsx      THE lighting-coherence primitive: ONE fixed page-wide backdrop
+                      (violet upper-right, blue lower-left) whose layers drift/re-weight
+                      across chapters via a single scrubbed timeline; static gradient on
+                      reduced-motion/coarse/low-power. Mounted once in page.tsx.
+  NarrativeStatement.tsx  The scroll-pinned beat (CSS sticky, no scroll hijack): bio
+                      through-line as crossfading statements; static stack under
+                      reduced motion. Copy from profile.narrative.statement.
+  Parallax.tsx        Layered drift wrapper (yPercent ±speed, scrubbed); no-op under
+                      reduced motion / coarse / low-power
+  SectionDivider.tsx  Accent-lit hairline seam, scrub-drawn, optional narrative kicker
+                      label (from profile.narrative.handoffs)
+  Reveal.tsx          Scroll fade-rise, scrubbed by default (`once` opt-out) |
+                      RevealText.tsx split-text headline reveal, scrubbed when scroll-
+                      triggered, timed on mount (hero)
   Nav.tsx (tubelight scrollspy) · ThemeToggle · Preloader · SmoothScroll (Lenis) ·
   Cursor · Magnetic · SpotlightCard · GridPattern · TechMarquee · Telemetry · CountUp ·
-  SectionHeading · Footer
+  SectionHeading (header + slight parallax) · Footer
 ```
 
 ## Design invariants (do not violate)

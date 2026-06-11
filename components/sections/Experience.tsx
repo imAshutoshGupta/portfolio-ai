@@ -3,7 +3,6 @@
 import { useLayoutEffect, useRef } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
-import Atmosphere from "@/components/Atmosphere";
 import { gsap, prefersReducedMotion } from "@/lib/motion";
 import { profile, isPlaceholder } from "@/data/profile";
 
@@ -39,7 +38,6 @@ export default function Experience() {
       aria-labelledby="experience-heading"
       className="relative overflow-hidden"
     >
-      <Atmosphere intensity="faint" parallax />
       <div className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section">
       <SectionHeading
         index="06"
