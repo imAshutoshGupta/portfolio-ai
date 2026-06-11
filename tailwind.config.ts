@@ -36,8 +36,8 @@ const config: Config = {
       boxShadow: {
         // Soft accent halo for hovered/primary surfaces.
         glow: "0 0 0 1px rgb(var(--c-accent) / 0.22), 0 8px 48px -16px rgb(var(--c-accent) / 0.30)",
-        // Neutral elevation for lifted cards.
-        lift: "0 16px 48px -20px rgba(0, 0, 0, 0.45)",
+        // Elevation cast by the site's key light — theme-aware via token.
+        lift: "0 16px 48px -20px var(--shadow-elev)",
         // 1px top highlight that reads as machined glass.
         inner: "inset 0 1px 0 rgb(var(--c-ink) / 0.05)",
       },

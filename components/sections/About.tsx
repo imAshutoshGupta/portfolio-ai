@@ -1,6 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
-import { profile } from "@/data/profile";
+import { profile, isPlaceholder } from "@/data/profile";
 
 export default function About() {
   return (
@@ -26,6 +26,26 @@ export default function About() {
         </div>
 
         <div className="space-y-10">
+          {/* Currently — signals momentum, not just history. */}
+          <Reveal>
+            <div className="panel rounded-card p-6">
+              <h3 className="flex items-center gap-2.5 text-xs tracking-[0.2em] text-muted">
+                <span
+                  className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-accent motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
+                CURRENTLY
+              </h3>
+              <p
+                className={`mt-3 text-sm leading-relaxed ${
+                  isPlaceholder(profile.currentFocus) ? "italic text-muted" : "text-ink/85"
+                }`}
+              >
+                {profile.currentFocus}
+              </p>
+            </div>
+          </Reveal>
+
           {profile.skills.map((group, gi) => (
             <Reveal key={group.label} delay={gi * 0.08}>
               <h3 className="mb-4 text-xs tracking-[0.2em] text-muted">

@@ -1,22 +1,42 @@
-import { profile } from "@/data/profile";
+import { profile, isPlaceholder } from "@/data/profile";
 
 /**
  * System prompt shared by every real-LLM provider. Built from data/profile.ts,
  * so editing the profile automatically updates the assistant's knowledge.
+ * Unfilled "[PLACEHOLDER: …]" strings are excluded so the model never quotes
+ * scaffolding back to a visitor.
  */
 export function buildSystemPrompt(): string {
   const projects = profile.projects
-    .map(
-      (p) =>
-        `- ${p.title}${p.flagship ? " (flagship — his strongest project)" : ""} (${p.year}): ${p.tagline} ${p.description} Tech: ${p.tech.join(", ")}.${p.repo ? ` Repo: ${p.repo}.` : ""}${p.live ? ` Live: ${p.live}.` : ""}`,
-    )
+    .map((p) => {
+      const cs = p.caseStudy;
+      const caseStudy = [
+        !isPlaceholder(cs.problem) ? `Problem: ${cs.problem}` : "",
+        !isPlaceholder(cs.role) ? `His role: ${cs.role}` : "",
+        cs.decisions.some((d) => !isPlaceholder(d))
+          ? `Key decisions: ${cs.decisions.filter((d) => !isPlaceholder(d)).join("; ")}`
+          : "",
+        !isPlaceholder(cs.outcome) ? `Outcome: ${cs.outcome}` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      return `- ${p.title}${p.flagship ? " (flagship — his strongest project)" : ""} (${p.year}): ${p.tagline} ${p.description} Tech: ${p.tech.join(", ")}.${caseStudy ? ` ${caseStudy}` : ""}${p.repo ? ` Repo: ${p.repo}.` : ""}${p.live ? ` Live: ${p.live}.` : ""}`;
+    })
     .join("\n");
 
   const experience = profile.experience
-    .map(
-      (e) =>
-        `- ${e.role} at ${e.company} (${e.period}): ${e.summary} Highlights: ${e.highlights.join("; ")}.`,
-    )
+    .map((e) => {
+      const scope = !isPlaceholder(e.scope) ? ` Scope: ${e.scope}` : "";
+      const tech = e.tech.some((t) => !isPlaceholder(t))
+        ? ` Tech: ${e.tech.filter((t) => !isPlaceholder(t)).join(", ")}.`
+        : "";
+      return `- ${e.role} at ${e.company} (${e.period}): ${e.summary}${scope}${tech} Highlights: ${e.highlights.join("; ")}.`;
+    })
+    .join("\n");
+
+  const education = profile.education
+    .filter((e) => !isPlaceholder(e.degree) && !isPlaceholder(e.institution))
+    .map((e) => `- ${e.degree}, ${e.institution} (${e.period})${e.detail && !isPlaceholder(e.detail) ? `: ${e.detail}` : ""}`)
     .join("\n");
 
   const skills = profile.skills
@@ -44,7 +64,7 @@ ${projects}
 
 EXPERIENCE
 ${experience}
-
+${education ? `\nEDUCATION\n${education}\n` : ""}
 CONTACT
 Email: ${profile.contact.email}
 GitHub: ${profile.contact.github}

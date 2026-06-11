@@ -94,6 +94,7 @@ interface SceneProps {
 
 function Ribbon({ theme, lite, reduced }: SceneProps) {
   const group = useRef<THREE.Group>(null);
+  const tilt = useRef<THREE.Group>(null);
   const material = useRef<THREE.MeshPhysicalMaterial>(null);
   const scrollRef = useRef(0);
   const { viewport } = useThree();
@@ -120,21 +121,31 @@ function Ribbon({ theme, lite, reduced }: SceneProps) {
 
   useFrame((state, delta) => {
     const g = group.current;
-    if (!g || reduced) return;
+    const tl = tilt.current;
+    if (!g || !tl || reduced) return;
     const d = Math.min(delta, 1 / 20);
     const t = state.clock.elapsedTime;
     const px = lite ? 0 : state.pointer.x;
     const py = lite ? 0 : state.pointer.y;
 
-    // Slow orbit with weight; the cursor nudges, damping settles it back.
+    // Inner group: the slow autonomous orbit + scroll lean — never the cursor.
     g.rotation.y += d * 0.16;
-    damp(g.rotation, "x", 0.5 + py * 0.16 + scrollRef.current * 0.55, 0.6, d);
-    damp(g.rotation, "z", -0.16 + px * 0.12, 0.8, d);
+    damp(g.rotation, "x", 0.5 + scrollRef.current * 0.55, 0.6, d);
     g.position.y = Math.sin(t * 0.55) * 0.07 + scrollRef.current * 0.6;
 
-    // Camera parallax: a few degrees of true Z-depth drift, also damped.
-    damp(state.camera.position, "x", px * 0.35, 1.2, d);
-    damp(state.camera.position, "y", -py * 0.22, 1.2, d);
+    // Outer group: the cursor-driven swing. Roughly 3× the old range — up to
+    // ~26° of yaw — but still critically damped (maath), so a fast sweep
+    // produces one weighted, controlled swing that eases back without
+    // overshoot or jitter. Pitch settles a touch quicker than yaw so the
+    // motion reads as a tethered object, not a tracked one.
+    damp(tl.rotation, "y", px * 0.46, 0.5, d);
+    damp(tl.rotation, "x", py * 0.3, 0.42, d);
+    damp(tl.rotation, "z", -0.16 + px * 0.14, 0.7, d);
+
+    // Camera parallax: true Z-depth drift, slower than the tilt so the two
+    // layers separate — that lag is what sells the depth.
+    damp(state.camera.position, "x", px * 0.5, 1.1, d);
+    damp(state.camera.position, "y", -py * 0.3, 1.1, d);
     state.camera.lookAt(0, 0.1, 0);
   });
 
@@ -144,22 +155,24 @@ function Ribbon({ theme, lite, reduced }: SceneProps) {
 
   return (
     <group position={[offsetX, 0.1, 0]} scale={scale}>
-      <group ref={group} rotation={[0.5, 0.9, -0.16]}>
-        <mesh geometry={geometry}>
-          <meshPhysicalMaterial
-            ref={material}
-            key={theme}
-            color={look.body}
-            metalness={look.metalness}
-            roughness={look.roughness}
-            clearcoat={1}
-            clearcoatRoughness={0.3}
-            iridescence={look.iridescence}
-            iridescenceIOR={1.6}
-            envMapIntensity={look.envIntensity}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
+      <group ref={tilt} rotation={[0, 0, -0.16]}>
+        <group ref={group} rotation={[0.5, 0.9, 0]}>
+          <mesh geometry={geometry}>
+            <meshPhysicalMaterial
+              ref={material}
+              key={theme}
+              color={look.body}
+              metalness={look.metalness}
+              roughness={look.roughness}
+              clearcoat={1}
+              clearcoatRoughness={0.3}
+              iridescence={look.iridescence}
+              iridescenceIOR={1.6}
+              envMapIntensity={look.envIntensity}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </group>
       </group>
     </group>
   );
