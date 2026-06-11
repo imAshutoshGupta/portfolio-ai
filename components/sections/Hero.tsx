@@ -46,11 +46,13 @@ export default function Hero() {
           </p>
         </div>
 
+        {/* Width-capped so the name breaks into two lines on the left — the
+            orb owns the right half of the stage. */}
         <RevealText
           as="h1"
           trigger="mount"
           delay={introDelay()}
-          className="max-w-5xl font-display text-[clamp(2.8rem,9vw,7.5rem)] font-semibold leading-[0.98] tracking-tight text-ink"
+          className="max-w-[11ch] font-display text-[clamp(2.8rem,9vw,7.5rem)] font-semibold leading-[0.98] tracking-tight text-ink"
         >
           {profile.name}
         </RevealText>

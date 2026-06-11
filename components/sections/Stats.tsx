@@ -5,7 +5,8 @@ import { stats } from "@/data/profile";
 /** Slim count-up strip directly under the hero — the "numbers at a glance" row. */
 export default function Stats() {
   return (
-    <section aria-label="Key numbers" className="border-y border-line">
+    // relative: must paint above the hero's fixed handoff canvas.
+    <section aria-label="Key numbers" className="relative border-y border-line">
       <div className="mx-auto grid max-w-site grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <Reveal
