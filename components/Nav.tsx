@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Magnetic from "./Magnetic";
+import ThemeToggle from "./ThemeToggle";
 import { scrollToSection } from "@/lib/scroll";
 import { profile } from "@/data/profile";
 
@@ -93,14 +94,17 @@ export default function Nav() {
           })}
         </ul>
 
-        <Magnetic strength={0.3} className="md:hidden">
-          <button
-            onClick={() => scrollToSection("contact")}
-            className="rounded-full border border-line bg-raise/60 px-4 py-2 text-sm text-ink backdrop-blur-md transition-colors hover:border-accent/40"
-          >
-            Contact
-          </button>
-        </Magnetic>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Magnetic strength={0.3} className="md:hidden">
+            <button
+              onClick={() => scrollToSection("contact")}
+              className="rounded-full border border-line bg-raise/60 px-4 py-2 text-sm text-ink backdrop-blur-md transition-colors hover:border-accent/40"
+            >
+              Contact
+            </button>
+          </Magnetic>
+        </div>
       </nav>
     </header>
   );

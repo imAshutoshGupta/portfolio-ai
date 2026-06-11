@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/Reveal";
 import Magnetic from "@/components/Magnetic";
+import GlassBackdrop from "@/components/gl/GlassBackdrop";
 import { profile } from "@/data/profile";
 
 /** The closing CTA — big, warm, and impossible to miss. */
@@ -38,15 +39,21 @@ export default function Contact() {
       aria-labelledby="contact-heading"
       className="relative overflow-hidden"
     >
-      {/* A quiet echo of the hero's warmth behind the closing statement. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(48rem 26rem at 50% 110%, rgba(226, 178, 90, 0.10), transparent 65%)",
-        }}
-      />
+      {/* The relocated glass refraction shader — the page closes on the craft
+          the hero used to open with. Lazy, frozen off-screen, static under
+          reduced motion (see GlassBackdrop). */}
+      <div className="pointer-events-none absolute inset-0">
+        <GlassBackdrop />
+        {/* Soft scrim keeps AA contrast for the headline over the shader. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60rem 30rem at 50% 45%, rgb(var(--c-base) / 0.55), rgb(var(--c-base) / 0.15) 70%)",
+          }}
+        />
+      </div>
 
       <div className="relative mx-auto max-w-site px-6 py-section-sm text-center sm:px-10 sm:py-section">
         <p className="mb-4 flex items-center justify-center gap-3 text-xs font-medium tracking-[0.2em] text-accent">
@@ -78,7 +85,7 @@ export default function Contact() {
             <Magnetic strength={0.3}>
               <button
                 onClick={copyEmail}
-                className="btn-shimmer rounded-full bg-accent px-8 py-4 font-medium text-base shadow-glow transition-all hover:brightness-110"
+                className="btn-shimmer rounded-full bg-accent px-8 py-4 font-medium text-onaccent shadow-glow transition-all hover:brightness-110"
               >
                 {copied ? "Copied to clipboard ✓" : profile.contact.email}
               </button>

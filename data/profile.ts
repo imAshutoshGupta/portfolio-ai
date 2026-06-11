@@ -145,9 +145,9 @@ export const profile = {
     {
       // [PLACEHOLDER]
       title: "Glasshouse",
-      tagline: "This site — a WebGL glass-refraction portfolio with a built-in AI guide.",
+      tagline: "This site — a procedural 3D portfolio with a built-in AI guide.",
       description:
-        "The portfolio you're looking at: a custom GLSL refraction shader, GSAP scroll choreography, Lenis smooth scrolling, and a model-agnostic AI assistant that answers questions about my work — with a zero-cost local demo mode.",
+        "The portfolio you're looking at: a procedurally built Möbius-ribbon 3D hero, a custom GLSL glass-refraction shader, light/dark theming, GSAP scroll choreography, and a model-agnostic AI assistant that answers questions about my work — with a zero-cost local demo mode.",
       tech: ["Next.js", "Three.js", "GLSL", "GSAP", "Anthropic API"],
       repo: "https://github.com/imAshutoshGupta/portfolio-ai",
       year: "2026",

@@ -1,11 +1,35 @@
 # Ashutosh Gupta — Portfolio
 
-A dark, high-contrast personal portfolio built around two signatures:
+A high-contrast personal portfolio (dark by default, with a first-class light
+mode) built around two signatures:
 
-- **Fluid glass** — a custom GLSL refraction shader in the hero. A procedural light field sits behind a virtual glass surface whose fractal height field bends the sampling rays, with chromatic aberration along the distortion edges. It reacts to cursor movement and settles as you scroll.
-- **Ask My Portfolio** — a native AI assistant that answers questions about the developer ("What's his strongest project?", "Does he know React?") with streaming responses. It works out of the box with **no API key** via a local demo engine, and switches to a real LLM with a single environment variable.
+- **The Möbius hero** — a single procedurally built 3D object floating in a
+  void: a Möbius ribbon (one continuous surface, no front or back — the
+  full-stack metaphor) swept in code from a rounded-rectangle cross-section
+  with a half-twist, lit by code-defined Lightformer studio lighting and an
+  iridescent physical material that shifts violet→blue as it slowly orbits.
+  Cursor input nudges it with damped, weighted motion; scroll eases it away.
+- **Ask My Portfolio** — a native AI assistant that answers questions about
+  the developer ("What's his strongest project?", "Does he know React?") with
+  streaming responses. It works out of the box with **no API key** via a local
+  demo engine, and switches to a real LLM with a single environment variable.
+
+The original GLSL **glass refraction shader** (the previous hero) lives on as
+the restrained backdrop of the closing Contact section — the page opens on the
+Möbius and closes on the glass.
 
 **Stack:** Next.js (App Router, TypeScript) · Tailwind CSS · react-three-fiber + drei · GSAP + ScrollTrigger · Lenis.
+
+## Theming
+
+Design tokens are CSS variables on `:root[data-theme]` (see `app/globals.css`),
+consumed by Tailwind as `rgb(var(--token) / alpha)`. Dark (near-black, violet
+`#9F8FFF` → blue `#5CA8FF`) is the identity and default; light (cool off-white,
+violet `#5B47D9` → blue `#2E6BD8`) is tuned separately for WCAG AA contrast.
+An inline script in `app/layout.tsx` applies the theme before first paint:
+stored choice (`localStorage.theme`) → `prefers-color-scheme` → dark. The nav
+toggle (`components/ThemeToggle.tsx`) persists the choice and crossfades the
+switch; both WebGL scenes re-light themselves per theme via `useTheme()`.
 
 ---
 
@@ -95,25 +119,31 @@ Redeploy after changing env vars. Without any of them the site is fully function
 
 ## Performance & accessibility notes
 
-- The WebGL scene is **lazy-loaded client-side** (`next/dynamic`, `ssr: false`) and never blocks first paint; a static gradient renders instantly underneath it.
-- The render loop **freezes when the hero is off-screen or the tab is hidden** (IntersectionObserver + visibilitychange), so the shader costs nothing while reading the page.
-- Device-aware quality: touch/low-power devices get a lighter shader (3 fbm octaves, DPR 1, no pointer ripple); desktop gets the full version (5 octaves, DPR ≤ 1.75). GPU resources are disposed on unmount.
-- `prefers-reduced-motion` disables the shader (static gradient instead), Lenis smooth scrolling, the preloader, the custom cursor, and all GSAP reveals.
+- Both WebGL scenes (Möbius hero, glass Contact backdrop) are **lazy-loaded client-side** (`next/dynamic`, `ssr: false`) and never block first paint; static gradient voids render instantly underneath them.
+- Render loops **freeze when their section is off-screen or the tab is hidden** (IntersectionObserver + visibilitychange), so neither scene costs anything while reading the rest of the page.
+- Device-aware quality: touch/low-power devices get a lighter Möbius mesh (160×28 vs 288×48 segments), DPR 1, no AA, and no cursor nudge; desktop gets the full mesh at DPR ≤ 1.75. The glass backdrop drops to 3 fbm octaves on the same devices. Geometries and materials are disposed on unmount.
+- `prefers-reduced-motion`: the hero renders a single calm static frame (no auto-orbit, no cursor/parallax motion), the glass backdrop becomes a static gradient, and Lenis, the preloader, the custom cursor, count-ups, the marquee, and all GSAP reveals are disabled.
+- Name + tagline are real HTML text layered over the canvas — never baked into the 3D. The theme toggle is a labelled button (`aria-label="Switch to … theme"`).
 - Semantic landmarks throughout, skip-to-content link, visible focus rings, keyboard-operable chat with `role="log"` + `aria-live="polite"`, and screen-reader-friendly split-text headings (the animated copy is `aria-hidden`, the plain string is read).
 
 ## Project structure
 
 ```
 app/
-  layout.tsx            Fonts, metadata (OG/Twitter), skip link
+  layout.tsx            Fonts, metadata (OG/Twitter), theme init script, skip link
   page.tsx              Section composition
-  globals.css           Design tokens, panel surface, marquee/accordion, keyframes
+  globals.css           Theme token sets (dark/light), panel surface, keyframes
   opengraph-image.tsx   Generated link-preview card
   api/ask/route.ts      Streaming chat endpoint (provider-agnostic)
 components/
-  gl/                   Glass shader, r3f scene, device-aware wrapper
+  gl/
+    HeroScene, Hero3D   Procedural Möbius hero (mesh, lights, damped motion)
+    glassShader,
+    GlassScene,
+    GlassBackdrop       Relocated refraction shader (Contact backdrop)
   sections/             Hero, Stats, About, Bento, Ask, Work, Process,
                         Experience, Faq, Contact
+  ThemeToggle           Accessible light/dark switch (persists to localStorage)
   SectionHeading        Shared eyebrow/headline/support rhythm
   CountUp               Scroll-triggered count-up (static under reduced motion)
   TechMarquee           Infinite tech-chip strip (wraps statically under reduced motion)
@@ -121,6 +151,7 @@ components/
   Preloader, Cursor, Magnetic, RevealText, Reveal, SmoothScroll, Nav, Footer
 lib/
   ai/                   Provider interface, local engine, Anthropic/OpenAI adapters
+  theme.ts              useTheme() hook + applyTheme() (data-theme on <html>)
   motion.ts             GSAP + ScrollTrigger setup, reduced-motion helpers
   scroll.ts             Lenis handle for anchor navigation
 data/

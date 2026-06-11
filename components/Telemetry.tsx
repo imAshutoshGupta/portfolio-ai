@@ -103,13 +103,14 @@ function Sparkline({ channel }: { channel: Channel }) {
         <polyline
           points={toPolyline(series, channel)}
           fill="none"
-          stroke="#E2B25A"
+          stroke="currentColor"
+          className="text-accent"
           strokeWidth="1.2"
           strokeLinejoin="round"
           opacity="0.85"
           style={{ transition: "all 0.9s linear" }}
         />
-        <line x1="0" y1="31" x2="100" y2="31" stroke="rgba(237,237,239,0.1)" strokeWidth="0.5" />
+        <line x1="0" y1="31" x2="100" y2="31" className="stroke-ink/10" strokeWidth="0.5" />
       </svg>
     </div>
   );

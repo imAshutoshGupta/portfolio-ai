@@ -1,7 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { profile } from "@/data/profile";
+
+// Runs before first paint: stored choice → OS preference → dark. Kept here
+// (not in lib/theme.ts) because that module is client-only.
+const themeInitScript = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="dark"}})()`;
 
 const display = Space_Grotesk({
   subsets: ["latin"],
@@ -61,15 +65,30 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0A0A0F" },
+    { media: "(prefers-color-scheme: light)", color: "#F7F7FB" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${serif.variable}`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${serif.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Sets data-theme before first paint: stored choice → OS preference → dark. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         <a
           href="#main"
-          className="sr-only z-[110] rounded-md bg-accent px-4 py-2 font-medium text-base focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+          className="sr-only z-[110] rounded-md bg-accent px-4 py-2 font-medium text-onaccent focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         >
           Skip to content
         </a>

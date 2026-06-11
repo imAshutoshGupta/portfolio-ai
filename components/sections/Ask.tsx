@@ -250,7 +250,7 @@ export default function Ask() {
                   <button
                     type="submit"
                     disabled={streaming || !input.trim()}
-                    className="shrink-0 rounded-full bg-accent px-5 py-3 text-sm font-medium text-base transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="shrink-0 rounded-full bg-accent px-5 py-3 text-sm font-medium text-onaccent transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {streaming ? "Thinking…" : "Ask"}
                   </button>

@@ -1,13 +1,17 @@
 /**
- * Custom "liquid glass" refraction shader — the site's visual signature.
+ * Custom "liquid glass" refraction shader — formerly the hero, now relocated
+ * as the restrained backdrop of the closing Contact section (the new 3D hero
+ * owns the opening; this bookends the page with the established craft).
  *
- * A procedural background (deep near-black with a drifting amber glow, a cool
- * counter-glow and a faint light shaft) is rendered behind a virtual glass
- * surface. The glass is a fractal height field whose gradient bends the
- * sampling rays (refraction), with per-channel offsets producing chromatic
- * aberration along the distortion edges. The cursor presses a soft ripple
- * into the surface; scrolling relaxes the distortion so the hero settles as
- * it leaves the viewport.
+ * A procedural background (two soft tinted glows and a faint light shaft) is
+ * rendered behind a virtual glass surface. The glass is a fractal height
+ * field whose gradient bends the sampling rays (refraction), with per-channel
+ * offsets producing chromatic aberration along the distortion edges. The
+ * cursor presses a soft ripple into the surface.
+ *
+ * All colors arrive as uniforms so both themes drive it from the same token
+ * palette. uLightMode switches the glow math: additive light on a dark base,
+ * subtractive tinting on a light base (additive washes out on near-white).
  */
 
 export const glassVertexShader = /* glsl */ `
@@ -28,12 +32,12 @@ export const glassFragmentShader = /* glsl */ `
   uniform vec2  uResolution;
   uniform vec2  uMouse;          // pointer position in uv space (smoothed)
   uniform float uMouseStrength;  // 0..1, follows pointer velocity, decays
-  uniform float uScroll;         // 0..1 hero scroll progress
   uniform float uOctaves;        // fbm octaves: 3 on low-power, 5 on desktop
-
-  const vec3 BASE   = vec3(0.040, 0.040, 0.047);
-  const vec3 AMBER  = vec3(0.886, 0.698, 0.353);
-  const vec3 COOL   = vec3(0.290, 0.360, 0.490);
+  uniform vec3  uBase;           // void color (theme base)
+  uniform vec3  uTintA;          // accent (violet)
+  uniform vec3  uTintB;          // accent-b (blue)
+  uniform float uLightMode;      // 0 = dark (additive), 1 = light (subtractive)
+  uniform float uAmp;            // overall glow amplitude
 
   float hash(vec2 p) {
     p = fract(p * vec2(234.34, 435.345));
@@ -65,25 +69,32 @@ export const glassFragmentShader = /* glsl */ `
     return value;
   }
 
+  // Adds light on a dark base; pulls toward the tint on a light base.
+  vec3 glow(vec3 col, vec3 tint, float g) {
+    vec3 additive = col + tint * g;
+    vec3 subtractive = col - (vec3(1.0) - tint) * g * 1.1;
+    return mix(additive, subtractive, uLightMode);
+  }
+
   // The scene "behind the glass": calm gradients, never busy.
   vec3 background(vec2 uv) {
     vec2 p = (uv - 0.5) * vec2(uResolution.x / uResolution.y, 1.0);
 
-    vec3 col = BASE;
+    vec3 col = uBase;
 
-    // Warm amber glow drifting top-right.
+    // Violet glow drifting top-right.
     vec2 g1 = vec2(0.34 + 0.10 * sin(uTime * 0.050), 0.16 + 0.08 * cos(uTime * 0.041));
     float d1 = length(p - g1);
-    col += AMBER * 0.150 * exp(-d1 * d1 * 3.2);
+    col = glow(col, uTintA, 0.150 * uAmp * exp(-d1 * d1 * 3.2));
 
-    // Cool counter-glow bottom-left for depth.
+    // Blue counter-glow bottom-left for depth.
     vec2 g2 = vec2(-0.46 + 0.08 * cos(uTime * 0.036), -0.24 + 0.08 * sin(uTime * 0.047));
     float d2 = length(p - g2);
-    col += COOL * 0.110 * exp(-d2 * d2 * 2.6);
+    col = glow(col, uTintB, 0.110 * uAmp * exp(-d2 * d2 * 2.6));
 
     // A faint diagonal shaft of light, slowly swaying.
     float axis = p.x + p.y * 0.65 - 0.12 + 0.08 * sin(uTime * 0.03);
-    col += AMBER * 0.045 * exp(-axis * axis * 7.0);
+    col = glow(col, uTintA, 0.045 * uAmp * exp(-axis * axis * 7.0));
 
     return col;
   }
@@ -115,10 +126,8 @@ export const glassFragmentShader = /* glsl */ `
     float hy = surfaceHeight(uv + vec2(0.0, eps)) - h;
     vec2 grad = vec2(hx, hy) / eps;
 
-    // Refraction strength: breathes slightly, eases off as the hero scrolls away.
-    float settle = 1.0 - uScroll * 0.65;
-    float strength = (0.030 + 0.012 * sin(uTime * 0.2)) * settle
-                   + 0.030 * uMouseStrength;
+    // Refraction strength breathes slightly; backdrop duty means it stays calm.
+    float strength = (0.022 + 0.009 * sin(uTime * 0.2)) + 0.024 * uMouseStrength;
     vec2 offset = grad * strength;
 
     // Chromatic aberration: each channel bends a touch differently.
@@ -127,20 +136,21 @@ export const glassFragmentShader = /* glsl */ `
     col.g = background(uv + offset).g;
     col.b = background(uv + offset * 0.93).b;
 
-    // Specular sheen along steep glass edges — the "light catching the bevel".
+    // Specular sheen along steep glass edges — light catching the bevel.
     float edge = smoothstep(0.55, 1.6, length(grad));
-    col += AMBER * pow(edge, 2.0) * 0.16 * settle;
+    col = glow(col, uTintA, pow(edge, 2.0) * 0.13 * uAmp);
 
     // Cold inner reflection on the opposing slope keeps the glass dimensional.
     float backEdge = smoothstep(0.55, 1.6, length(-grad + vec2(0.4)));
-    col += COOL * pow(backEdge, 2.4) * 0.05 * settle;
+    col = glow(col, uTintB, pow(backEdge, 2.4) * 0.045 * uAmp);
 
-    // Gentle vignette to seat the type.
+    // Gentle vignette to seat the type (lighter touch on the light theme).
     vec2 vp = (uv - 0.5) * vec2(uResolution.x / uResolution.y, 1.0);
-    col *= mix(0.72, 1.0, smoothstep(1.15, 0.30, length(vp)));
+    float vig = smoothstep(1.15, 0.30, length(vp));
+    col *= mix(mix(0.78, 1.0, vig), mix(0.94, 1.0, vig), uLightMode);
 
     // Fine film grain defeats gradient banding.
-    col += (hash(uv * uResolution.xy + fract(uTime) * 113.0) - 0.5) * 0.022;
+    col += (hash(uv * uResolution.xy + fract(uTime) * 113.0) - 0.5) * 0.02;
 
     gl_FragColor = vec4(col, 1.0);
   }

@@ -4,23 +4,53 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { glassVertexShader, glassFragmentShader } from "./glassShader";
+import type { Theme } from "@/lib/theme";
 
 interface GlassSceneProps {
   /** Lower octave count + capped DPR for touch / low-power devices. */
   lite: boolean;
-  /** When false the render loop is frozen (hero off-screen, tab hidden). */
+  /** When false the render loop is frozen (section off-screen, tab hidden). */
   active: boolean;
+  theme: Theme;
 }
+
+/** Token palette → shader uniforms, per theme. */
+const GLASS_LOOKS: Record<
+  Theme,
+  { base: THREE.Color; tintA: THREE.Color; tintB: THREE.Color; lightMode: number; amp: number }
+> = {
+  dark: {
+    base: new THREE.Color(10 / 255, 10 / 255, 15 / 255),
+    tintA: new THREE.Color(159 / 255, 143 / 255, 255 / 255),
+    tintB: new THREE.Color(92 / 255, 168 / 255, 255 / 255),
+    lightMode: 0,
+    amp: 1,
+  },
+  light: {
+    base: new THREE.Color(247 / 255, 247 / 255, 251 / 255),
+    tintA: new THREE.Color(91 / 255, 71 / 255, 217 / 255),
+    tintB: new THREE.Color(46 / 255, 107 / 255, 216 / 255),
+    lightMode: 1,
+    amp: 0.55,
+  },
+};
 
 interface PointerState {
   target: THREE.Vector2;
   strengthTarget: number;
 }
 
-function GlassPlane({ lite, pointer }: { lite: boolean; pointer: PointerState }) {
+function GlassPlane({
+  lite,
+  theme,
+  pointer,
+}: {
+  lite: boolean;
+  theme: Theme;
+  pointer: PointerState;
+}) {
   const { viewport, size } = useThree();
   const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const scrollRef = useRef(0);
   const smoothedMouse = useRef(new THREE.Vector2(0.5, 0.5));
   const smoothedStrength = useRef(0);
 
@@ -30,10 +60,14 @@ function GlassPlane({ lite, pointer }: { lite: boolean; pointer: PointerState })
       uResolution: { value: new THREE.Vector2(1, 1) },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uMouseStrength: { value: 0 },
-      uScroll: { value: 0 },
       uOctaves: { value: lite ? 3 : 5 },
+      uBase: { value: GLASS_LOOKS.dark.base.clone() },
+      uTintA: { value: GLASS_LOOKS.dark.tintA.clone() },
+      uTintB: { value: GLASS_LOOKS.dark.tintB.clone() },
+      uLightMode: { value: 0 },
+      uAmp: { value: 1 },
     }),
-    // Octave count is fixed per mount; the wrapper remounts if the profile changes.
+    // Created once per mount; theme/lite updates flow through the effects below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
@@ -43,13 +77,13 @@ function GlassPlane({ lite, pointer }: { lite: boolean; pointer: PointerState })
   }, [lite, uniforms]);
 
   useEffect(() => {
-    const onScroll = () => {
-      scrollRef.current = Math.min(window.scrollY / window.innerHeight, 1);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const look = GLASS_LOOKS[theme];
+    uniforms.uBase.value.copy(look.base);
+    uniforms.uTintA.value.copy(look.tintA);
+    uniforms.uTintB.value.copy(look.tintB);
+    uniforms.uLightMode.value = look.lightMode;
+    uniforms.uAmp.value = look.amp;
+  }, [theme, uniforms]);
 
   // Explicit GPU resource cleanup on unmount.
   useEffect(() => {
@@ -66,7 +100,6 @@ function GlassPlane({ lite, pointer }: { lite: boolean; pointer: PointerState })
 
     mat.uniforms.uTime.value += d;
     mat.uniforms.uResolution.value.set(size.width, size.height);
-    mat.uniforms.uScroll.value += (scrollRef.current - mat.uniforms.uScroll.value) * 0.1;
 
     // Critically-damped chase keeps the ripple liquid rather than twitchy.
     smoothedMouse.current.lerp(pointer.target, 1 - Math.exp(-6 * d));
@@ -93,7 +126,7 @@ function GlassPlane({ lite, pointer }: { lite: boolean; pointer: PointerState })
   );
 }
 
-export default function GlassScene({ lite, active }: GlassSceneProps) {
+export default function GlassScene({ lite, active, theme }: GlassSceneProps) {
   const pointer = useRef<PointerState>({
     target: new THREE.Vector2(0.5, 0.5),
     strengthTarget: 0,
@@ -130,13 +163,13 @@ export default function GlassScene({ lite, active }: GlassSceneProps) {
         stencil: false,
         depth: false,
       }}
-      dpr={lite ? 1 : [1, 1.75]}
+      dpr={lite ? 1 : [1, 1.5]}
       frameloop={active ? "always" : "never"}
       camera={{ position: [0, 0, 1], fov: 50 }}
       style={{ position: "absolute", inset: 0 }}
       aria-hidden="true"
     >
-      <GlassPlane lite={lite} pointer={pointer.current} />
+      <GlassPlane lite={lite} theme={theme} pointer={pointer.current} />
     </Canvas>
   );
 }

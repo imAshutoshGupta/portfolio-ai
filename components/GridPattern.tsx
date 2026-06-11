@@ -34,7 +34,7 @@ export default function GridPattern({ className }: { className?: string }) {
             <path
               d={`M ${CELL} 0 L 0 0 0 ${CELL}`}
               fill="none"
-              stroke="rgba(237, 237, 239, 0.06)"
+              style={{ stroke: "rgb(var(--c-ink) / 0.06)" }}
               strokeWidth="1"
             />
           </pattern>
@@ -48,8 +48,8 @@ export default function GridPattern({ className }: { className?: string }) {
               y={row * CELL + 1}
               width={CELL - 2}
               height={CELL - 2}
-              fill="rgba(226, 178, 90, 0.05)"
               style={{
+                fill: "rgb(var(--c-accent) / 0.05)",
                 animation: "grid-cell 7s ease-in-out infinite",
                 animationDelay: `${delay}s`,
                 opacity: 0,

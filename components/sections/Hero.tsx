@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import HeroCanvas from "@/components/gl/HeroCanvas";
+import Hero3D from "@/components/gl/Hero3D";
 import RevealText from "@/components/RevealText";
 import { gsap, prefersReducedMotion, introDelay } from "@/lib/motion";
 import { scrollToSection } from "@/lib/scroll";
@@ -36,7 +36,7 @@ export default function Hero() {
       aria-label="Introduction"
       className="relative flex min-h-svh flex-col justify-center overflow-hidden"
     >
-      <HeroCanvas />
+      <Hero3D />
 
       <div className="relative z-10 mx-auto w-full max-w-site px-6 sm:px-10">
         <div ref={metaRef}>

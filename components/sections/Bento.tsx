@@ -76,33 +76,33 @@ function PerformanceVisual() {
         <path
           d="M 12 64 A 48 48 0 0 1 108 64"
           fill="none"
-          stroke="rgba(237,237,239,0.1)"
+          className="stroke-ink/10"
           strokeWidth="6"
           strokeLinecap="round"
         />
         <path
           d="M 12 64 A 48 48 0 0 1 108 64"
           fill="none"
-          stroke="#E2B25A"
+          stroke="currentColor"
           strokeWidth="6"
           strokeLinecap="round"
           pathLength="100"
           strokeDasharray="100"
           strokeDashoffset="8"
-          className="perf-arc"
+          className="perf-arc text-accent"
         />
         <text
           x="60"
           y="56"
           textAnchor="middle"
-          fill="#EDEDEF"
+          className="fill-ink"
           fontSize="20"
           fontWeight="600"
           fontFamily="var(--font-display)"
         >
           60
         </text>
-        <text x="60" y="68" textAnchor="middle" fill="#8A8A93" fontSize="8" letterSpacing="2">
+        <text x="60" y="68" textAnchor="middle" className="fill-muted" fontSize="8" letterSpacing="2">
           FPS TARGET
         </text>
       </svg>
@@ -118,11 +118,11 @@ function MotionVisual() {
         <path
           d="M 10 60 C 40 60, 50 10, 130 10"
           fill="none"
-          stroke="rgba(237,237,239,0.18)"
+          className="stroke-ink/20"
           strokeWidth="1.5"
           strokeDasharray="3 4"
         />
-        <circle r="4" fill="#E2B25A" className="motion-dot">
+        <circle r="4" fill="currentColor" className="motion-dot text-accent">
           <animateMotion
             dur="2.6s"
             repeatCount="indefinite"
@@ -133,7 +133,7 @@ function MotionVisual() {
             path="M 10 60 C 40 60, 50 10, 130 10"
           />
         </circle>
-        <text x="10" y="69" fill="#8A8A93" fontSize="7" letterSpacing="1.5">
+        <text x="10" y="69" className="fill-muted" fontSize="7" letterSpacing="1.5">
           cubic-bezier(0.16, 1, 0.3, 1)
         </text>
       </svg>

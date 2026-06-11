@@ -9,14 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: "#0A0A0B",
-        raise: "#121214",
-        ink: "#EDEDEF",
-        muted: "#8A8A93",
-        line: "rgba(237, 237, 239, 0.08)",
+        // All values resolve through CSS variables set per-theme in globals.css.
+        base: "rgb(var(--c-base) / <alpha-value>)",
+        raise: "rgb(var(--c-raise) / <alpha-value>)",
+        ink: "rgb(var(--c-ink) / <alpha-value>)",
+        muted: "rgb(var(--c-muted) / <alpha-value>)",
+        line: "rgb(var(--c-ink) / 0.09)",
+        onaccent: "rgb(var(--c-on-accent) / <alpha-value>)",
         accent: {
-          DEFAULT: "#E2B25A",
-          dim: "rgba(226, 178, 90, 0.14)",
+          DEFAULT: "rgb(var(--c-accent) / <alpha-value>)",
+          b: "rgb(var(--c-accent-b) / <alpha-value>)",
+          dim: "rgb(var(--c-accent) / 0.14)",
         },
       },
       fontFamily: {
@@ -32,11 +35,11 @@ const config: Config = {
       },
       boxShadow: {
         // Soft accent halo for hovered/primary surfaces.
-        glow: "0 0 0 1px rgba(226, 178, 90, 0.22), 0 8px 48px -16px rgba(226, 178, 90, 0.28)",
+        glow: "0 0 0 1px rgb(var(--c-accent) / 0.22), 0 8px 48px -16px rgb(var(--c-accent) / 0.30)",
         // Neutral elevation for lifted cards.
-        lift: "0 16px 48px -20px rgba(0, 0, 0, 0.65)",
+        lift: "0 16px 48px -20px rgba(0, 0, 0, 0.45)",
         // 1px top highlight that reads as machined glass.
-        inner: "inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+        inner: "inset 0 1px 0 rgb(var(--c-ink) / 0.05)",
       },
       transitionTimingFunction: {
         "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
