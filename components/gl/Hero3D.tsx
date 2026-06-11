@@ -4,8 +4,19 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/lib/theme";
 
+/**
+ * Safety valve: which hero subject to mount.
+ *  - "morph"  → MorphScene, the crystallizing orb (current)
+ *  - "mobius" → HeroScene, the previous Möbius ribbon (kept intact)
+ * Flip this one constant to revert the hero; only the chosen chunk loads.
+ */
+const HERO_VARIANT = "morph" as "morph" | "mobius";
+
 // three.js loads client-side only, after device capability is known.
-const HeroScene = dynamic(() => import("./HeroScene"), { ssr: false });
+const HeroScene = dynamic(
+  () => (HERO_VARIANT === "mobius" ? import("./HeroScene") : import("./MorphScene")),
+  { ssr: false },
+);
 
 type Mode = "pending" | "full" | "lite";
 

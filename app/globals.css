@@ -452,14 +452,19 @@ html.theme-switching *::after {
   }
 
   /* Static void behind the 3D hero — paints immediately, and is the whole
-     experience if WebGL never mounts. */
+     experience if WebGL never mounts. Tuned for the crystallizing orb: the
+     accent glow gathers right-of-center where the subject floats (violet
+     upper-right / blue lower-left, the site's one lighting world), and a
+     soft vertical falloff gives the void depth without competing with it.
+     The global film grain (body::before) supplies the richness layer. */
   .hero3d-fallback {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(46rem 30rem at 64% 42%, rgb(var(--c-accent) / 0.12), transparent 62%),
-      radial-gradient(38rem 26rem at 30% 70%, rgb(var(--c-accent-b) / 0.09), transparent 60%),
-      rgb(var(--c-base));
+      radial-gradient(50rem 34rem at 66% 40%, rgb(var(--c-accent) / 0.14), transparent 58%),
+      radial-gradient(40rem 30rem at 56% 60%, rgb(var(--c-accent-b) / 0.1), transparent 58%),
+      radial-gradient(34rem 24rem at 22% 78%, rgb(var(--c-accent-b) / 0.06), transparent 60%),
+      linear-gradient(180deg, rgb(var(--c-base)) 0%, rgb(var(--c-raise) / 0.45) 52%, rgb(var(--c-base)) 100%);
   }
 
   /* Static fallback under the Selected Work 3D shard field — same lighting
