@@ -38,6 +38,7 @@ export default function Experience() {
       aria-labelledby="experience-heading"
       className="relative overflow-hidden"
     >
+      <div className="section-wash" aria-hidden="true" />
       <div className="relative mx-auto max-w-site px-6 py-section-sm sm:px-10 sm:py-section">
       <SectionHeading
         index="06"
@@ -46,7 +47,7 @@ export default function Experience() {
         headingId="experience-heading"
       />
 
-      <div className="relative mt-16 max-w-3xl">
+      <div className="relative mt-12 max-w-3xl">
         <div
           className="absolute bottom-0 left-[5px] top-0 w-px bg-line"
           aria-hidden="true"
@@ -105,7 +106,7 @@ export default function Experience() {
       </div>
 
       {/* Education — quiet, factual, at the foot of the timeline. */}
-      <Reveal className="mt-20 max-w-3xl">
+      <Reveal className="mt-14 max-w-3xl">
         <h3 className="text-xs tracking-[0.2em] text-muted">EDUCATION</h3>
         <ul className="mt-4 space-y-5">
           {profile.education.map((entry) => (

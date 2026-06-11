@@ -40,19 +40,20 @@ export default function Atmosphere() {
       // Positions are fractions of total page scroll — a light score, not
       // exact section bounds, so the drift never snaps at a seam.
       tl
-        // Who: the hero's violet spills down the first chapter, then yields.
-        .to(violet, { yPercent: 7, xPercent: -3, opacity: 0.55, duration: 0.3 }, 0)
+        // Who: the hero's violet spills down the first chapter, then softens —
+        // but never drops out; the middle of the page stays in the color world.
+        .to(violet, { yPercent: 7, xPercent: -3, opacity: 0.7, duration: 0.3 }, 0)
         // Proof → method: violet recovers as the page turns reflective.
-        .to(violet, { yPercent: 2, xPercent: -7, opacity: 0.8, duration: 0.4 }, 0.3)
+        .to(violet, { yPercent: 2, xPercent: -7, opacity: 0.85, duration: 0.4 }, 0.3)
         // Close: both lights converge on the contact chapter.
         .to(violet, { yPercent: 9, xPercent: -12, scale: 1.15, opacity: 1, duration: 0.3 }, 0.7)
         .fromTo(
           blue,
-          { yPercent: 6, xPercent: 0, opacity: 0.45 },
+          { yPercent: 6, xPercent: 0, opacity: 0.5 },
           { yPercent: -6, opacity: 1, duration: 0.35 },
           0.05,
         )
-        .to(blue, { yPercent: -2, xPercent: 5, opacity: 0.65, duration: 0.4 }, 0.4)
+        .to(blue, { yPercent: -2, xPercent: 5, opacity: 0.8, duration: 0.4 }, 0.4)
         .to(blue, { yPercent: -12, xPercent: 9, scale: 1.1, opacity: 0.9, duration: 0.2 }, 0.8);
     });
     return () => ctx.revert();
@@ -64,7 +65,7 @@ export default function Atmosphere() {
         ref={violetRef}
         className="absolute -inset-[12%] will-change-transform"
         style={{
-          background: `radial-gradient(48rem 34rem at 78% 12%, rgb(var(--c-accent) / calc(var(--glow-violet-a) * 1.7)), transparent 62%)`,
+          background: `radial-gradient(48rem 34rem at 78% 12%, rgb(var(--c-accent) / calc(var(--glow-violet-a) * 2.1)), transparent 62%)`,
         }}
       />
       <div
@@ -72,7 +73,7 @@ export default function Atmosphere() {
         className="absolute -inset-[12%] will-change-transform"
         style={{
           opacity: 0.55,
-          background: `radial-gradient(44rem 32rem at 16% 88%, rgb(var(--c-accent-b) / calc(var(--glow-blue-a) * 1.7)), transparent 60%)`,
+          background: `radial-gradient(44rem 32rem at 16% 88%, rgb(var(--c-accent-b) / calc(var(--glow-blue-a) * 2.1)), transparent 60%)`,
         }}
       />
     </div>

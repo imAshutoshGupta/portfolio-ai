@@ -18,7 +18,7 @@ export default function Stats() {
               value={stat.value}
               suffix={stat.suffix}
               approximate={stat.approximate}
-              className="font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl"
+              className="text-gradient font-display text-4xl font-semibold tracking-tight sm:text-5xl"
             />
             <p className="mt-2 text-sm text-muted">{stat.label}</p>
           </Reveal>

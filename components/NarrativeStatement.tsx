@@ -8,10 +8,11 @@ import { profile, isPlaceholder } from "@/data/profile";
  * The page's one scroll-pinned beat: between "who I am" and "what I can do",
  * the bio's through-line plays as statements that crossfade while the
  * viewport holds. Pinning is plain CSS sticky — native scroll is never
- * hijacked, the page just has room to breathe here. Under reduced motion it
- * collapses to a calm static stack with no extra scroll length. Copy lives
- * in profile.narrative (single source of truth); unfilled lines render as
- * italic placeholders.
+ * hijacked — and the pin distance is kept short (160vh) so the beat reads
+ * as a held breath, not a dead screen; the gradient type keeps it in the
+ * accent world. Under reduced motion it collapses to a calm static stack
+ * with no extra scroll length. Copy lives in profile.narrative (single
+ * source of truth); unfilled lines render as italic placeholders.
  */
 export default function NarrativeStatement() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -50,17 +51,17 @@ export default function NarrativeStatement() {
     <section
       ref={sectionRef}
       aria-label="In short"
-      className="relative h-[220vh] motion-reduce:h-auto"
+      className="relative h-[160vh] motion-reduce:h-auto"
     >
       <div className="sticky top-0 flex h-svh flex-col items-center justify-center motion-reduce:static motion-reduce:h-auto motion-reduce:py-section-sm">
-        <p className="mb-10 text-xs font-medium tracking-[0.3em] text-muted">THE THROUGH-LINE</p>
+        <p className="mb-8 text-xs font-medium tracking-[0.3em] text-accent">THE THROUGH-LINE</p>
         <div className="grid w-full max-w-4xl px-6 text-center sm:px-10 motion-reduce:flex motion-reduce:flex-col motion-reduce:gap-10">
           {profile.narrative.statement.map((line, i) => (
             <p
               key={i}
               data-line
               className={`self-center [grid-area:1/1] font-display text-[clamp(1.7rem,4vw,3.2rem)] font-medium leading-tight tracking-tight ${
-                isPlaceholder(line) ? "italic text-muted" : "text-ink"
+                isPlaceholder(line) ? "italic text-muted" : "text-gradient"
               } ${
                 // Later beats start invisible so the overlapped stack never
                 // flashes before hydration; GSAP takes over from there.
