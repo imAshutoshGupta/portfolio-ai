@@ -501,35 +501,6 @@ html.theme-switching *::after {
     }
   }
 
-  /* Midnight coder silhouette (CoderSilhouette.tsx). The glow pulse sits on
-     a wrapper group so it multiplies with the cursor-proximity opacity on
-     the ellipse itself; head/body turns are JS-set transforms smoothed by
-     these transitions (no rAF loop). All of it goes still under reduced
-     motion — the still pose per section is the experience. */
-  .coder-glow {
-    animation: coder-pulse 6.5s ease-in-out infinite;
-  }
-
-  .coder-head,
-  .coder-body {
-    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .coder-caret {
-    animation: coder-caret 1.15s steps(2, jump-none) infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .coder-glow,
-    .coder-caret {
-      animation: none;
-    }
-    .coder-head,
-    .coder-body {
-      transition: none;
-    }
-  }
-
   /* External link arrows that nudge on hover. */
   .link-arrow::after {
     content: "↗";
@@ -605,26 +576,6 @@ html.theme-switching *::after {
   }
   to {
     background-position: -200% 0;
-  }
-}
-
-@keyframes coder-pulse {
-  0%,
-  100% {
-    opacity: 0.72;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes coder-caret {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
   }
 }
 

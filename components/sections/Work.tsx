@@ -4,7 +4,6 @@ import { useId, useRef, useState } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
 import Parallax from "@/components/Parallax";
-import CoderSilhouette from "@/components/CoderSilhouette";
 import WorkField from "@/components/gl/WorkField";
 import { gsap, ScrollTrigger, hasFinePointer, prefersReducedMotion } from "@/lib/motion";
 import { profile, isPlaceholder, type Project } from "@/data/profile";
@@ -212,13 +211,6 @@ export default function Work() {
             </Parallax>
           ))}
         </div>
-
-        {/* Midnight coder, beat 4: leaning in, screen brightening — shipping. */}
-        <CoderSilhouette
-          pose="leanIn"
-          flip
-          className="pointer-events-none absolute bottom-3 right-0 hidden w-24 md:block lg:w-28"
-        />
       </div>
     </section>
   );

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
-import CoderSilhouette from "@/components/CoderSilhouette";
 import { profile, allSkills } from "@/data/profile";
 import type { ChatMessage } from "@/lib/ai/types";
 
@@ -271,12 +270,6 @@ export default function Ask() {
           </div>
         </div>
       </Reveal>
-
-      {/* Midnight coder, beat 3: glancing up — it noticed your cursor. */}
-      <CoderSilhouette
-        pose="glance"
-        className="pointer-events-none absolute bottom-2 left-0 hidden w-24 md:block lg:w-28"
-      />
     </section>
   );
 }

@@ -1,7 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
 import Parallax from "@/components/Parallax";
-import CoderSilhouette from "@/components/CoderSilhouette";
 import { profile, isPlaceholder } from "@/data/profile";
 
 export default function About() {
@@ -70,12 +69,6 @@ export default function About() {
           ))}
         </Parallax>
       </div>
-
-      {/* Midnight coder, beat 1: typing intently — the build begins. */}
-      <CoderSilhouette
-        pose="typing"
-        className="pointer-events-none absolute bottom-2 left-0 hidden w-24 md:block lg:w-28"
-      />
     </section>
   );
 }
