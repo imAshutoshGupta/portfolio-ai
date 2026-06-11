@@ -54,11 +54,16 @@ ScrollTrigger · Lenis smooth scroll · @anthropic-ai/sdk (optional, env-gated).
   camera parallax PLUS surface excitation — uPointer (object-space, damped) drives a
   local swell + rim glow toward the cursor (fades as the form resolves); pointer comes
   from MorphScene's own window listener since its layer is pointer-events-none.
-  Continuity/handoff: in full mode the canvas layer is viewport-FIXED — after the morph
-  (p: 0→0.9 vh) a second damped progress h (0.95→1.7 vh) drifts the crystal up-right,
-  shrinks it and fades material.opacity so it dissolves behind Stats/TechMarquee; the
-  layer is `hidden` + frameloop "never" past 1.85 vh. Stats + TechMarquee sections are
-  `relative` ON PURPOSE so their content paints above that fixed canvas — keep it.
+  Continuity/companion: in full mode the canvas layer is viewport-FIXED — after the morph
+  (p: 0→0.9 vh) a second damped progress c (0.95→1.7 vh) shrinks the crystal (×0.42) into
+  a page companion that weaves left/right down the margins section by section: route =
+  DOM-measured waypoints (#about L, #capabilities R, #ask L, #work R, #process L,
+  #experience R, #faq L; re-measured on resize + body ResizeObserver since case studies
+  change page height), all positions damped so side switches read as lazy glides. At
+  #contact it fades out (material.opacity, the glass shader is the closer) and the layer
+  is `hidden` + frameloop "never" past scrollHeight−1.4 vh. ALL sections must stay
+  positioned (relative/sticky) so content paints above that fixed canvas — Stats +
+  TechMarquee got `relative` for exactly this; keep it.
   Reduced motion = still frame at p=0.62, absolute layer, no handoff; lite = fixed
   structured state, slow drift, absolute layer, no scroll/pointer work.
   `HERO_VARIANT` const in `gl/Hero3D.tsx` flips between "morph" and "mobius" (HeroScene.tsx
